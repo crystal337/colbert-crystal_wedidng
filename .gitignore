@@ -12,10 +12,11 @@ dist
 dist-ssr
 *.local
 
-# environment variables (contains real endpoint/links)
+# local-only environment variables
 .env
-.env.*
-!.env.example
+.env.local
+# .env.production IS committed on purpose: it only holds public-facing
+# links (form endpoint + group invites) needed to build the deployed site.
 
 # Editor directories and files
 .vscode/*

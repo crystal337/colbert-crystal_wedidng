@@ -54,14 +54,14 @@ apps-script/
 
 ## 2. 設定 LINE / WhatsApp 群組連結
 
-在 `.env` 加入：
+本機開發用 `.env`；**部署到 GitHub Pages 用的是 `.env.production`**（這個檔案有進版控，直接改了 push 上去就會生效）：
 
 ```
 VITE_LINE_URL=https://line.me/ti/g/你的邀請碼
 VITE_WHATSAPP_URL=https://chat.whatsapp.com/你的邀請碼
 ```
 
-沒有設定的話會顯示佔位連結，記得部署前要換成真的邀請連結。
+沒有設定的話會顯示佔位連結，記得部署前要換成真的邀請連結。這兩個連結跟 Apps Script 網址一樣都不是機密資料（本來就會顯示在網頁上給賓客點），所以直接寫進 `.env.production` 提交是安全的。
 
 ## 3. 更換護照內頁的照片
 
@@ -81,7 +81,23 @@ VITE_WHATSAPP_URL=https://chat.whatsapp.com/你的邀請碼
 
 ## 4. 部署 Deployment
 
-這是純前端的 Vite 專案，`npm run build` 後把 `dist/` 部署到 Vercel、Netlify、Cloudflare Pages 或 GitHub Pages 皆可。記得在部署平台的環境變數設定裡，同樣加上 `VITE_GAS_ENDPOINT`、`VITE_LINE_URL`、`VITE_WHATSAPP_URL`。
+### GitHub Pages（已內建自動部署）
+
+repo 裡已經有 `.github/workflows/deploy.yml`，每次 push 到這個分支或 `main` 都會自動 build 並發布到 GitHub Pages。**第一次使用前，你只需要手動開一次開關：**
+
+1. 到 GitHub repo 頁面 → **Settings → Pages**
+2. **Build and deployment → Source** 選擇 **GitHub Actions**
+3. 存好後回到 **Actions** 分頁，確認 workflow 有跑成功（綠勾勾）
+4. 幾分鐘後網站會上線在：
+   `https://<你的GitHub帳號>.github.io/colbert-crystal_wedidng/`
+
+之後只要 push 新的 commit，網站就會自動重新部署，不用再手動操作。
+
+> 如果之後 repo 改名或帳號不同，記得同步修改 `vite.config.ts` 裡的 `base` 路徑，否則圖片/樣式會讀不到。
+
+### 其他選擇
+
+也可以改用 Vercel、Netlify、Cloudflare Pages：`npm run build` 產出 `dist/` 後上傳即可，並在該平台的環境變數設定加上 `VITE_GAS_ENDPOINT`、`VITE_LINE_URL`、`VITE_WHATSAPP_URL`（此時不需要 `base` 路徑，可把 `vite.config.ts` 的 `base` 拿掉或設為 `/`）。
 
 ## 5. 修改文案
 
