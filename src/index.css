@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  /* passport / brand palette */
+  --color-passport-green: #123526;
+  --color-passport-green-dark: #0a2419;
+  --color-passport-gold: #cda45e;
+  --color-passport-gold-light: #e8cf9c;
+
+  --color-cream: #fdf6ea;
+  --color-cream-dark: #f3e6cd;
+  --color-blush: #f3c9c9;
+  --color-blush-dark: #e7a3a8;
+  --color-ink: #3a2e22;
+
+  --font-serif-zh: "Noto Serif TC", serif;
+  --font-serif-en: "Cormorant Garamond", serif;
+  --font-body-zh: "Noto Sans TC", sans-serif;
+  --font-body-en: "Quicksand", sans-serif;
+
+  --animate-fade-in: fade-in 1s ease-out forwards;
+  --animate-fade-in-slow: fade-in 1.6s ease-out forwards;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body-zh);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+.font-serif-zh {
+  font-family: var(--font-serif-zh);
+}
+.font-serif-en {
+  font-family: var(--font-serif-en);
+}
+.font-body-en {
+  font-family: var(--font-body-en);
+}
+
+/* soft scrollbar for a gentler feel */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-passport-gold);
+  border-radius: 999px;
+}
