@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { content } from '../content';
 import { StampIcon } from './StampIcon';
 import { PhotoFrame } from './PhotoFrame';
+import metPhoto from '../assets/met.jpg';
+import togetherPhoto from '../assets/together.jpg';
 
 type Spread = {
   stamp: (typeof content.stamps)['met'];
@@ -12,8 +14,13 @@ type Spread = {
 };
 
 const spreads: Spread[] = [
-  { stamp: content.stamps.met, photoAlt: 'Colbert and Crystal — where we met', rotate: -7 },
-  { stamp: content.stamps.together, photoAlt: 'Colbert and Crystal — together forever', rotate: 5 },
+  { stamp: content.stamps.met, photoSrc: metPhoto, photoAlt: 'Colbert and Crystal — where we met', rotate: -7 },
+  {
+    stamp: content.stamps.together,
+    photoSrc: togetherPhoto,
+    photoAlt: 'Colbert and Crystal — together forever',
+    rotate: 5,
+  },
 ];
 
 const FLIP_DELAY_MS = 2200;
