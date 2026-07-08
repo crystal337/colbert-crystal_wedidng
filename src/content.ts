@@ -7,10 +7,23 @@ export const content = {
   },
 
   cover: {
-    topLine: { zh: '永結同心', en: 'Forever United' } as Bi,
-    passportLabel: { zh: '婚禮護照', en: 'PASSPORT' } as Bi,
-    title: "Colbert & Crystal's Wedding",
+    passportWord: { zh: '護照', en: 'PASSPORT' } as Bi,
+    subtitle: { zh: '我們的婚禮旅程', en: 'the marriage…' } as Bi,
+    names: 'Colbert & Crystal',
+    date: { zh: '2027 年 1 月', en: 'Jan 2027' } as Bi,
     openButton: { zh: '打開', en: 'Open' } as Bi,
+  },
+
+  langToggle: {
+    // label shown on the switcher for the language you'd switch TO
+    toZh: '中文',
+    toEn: 'EN',
+  },
+
+  eventFields: {
+    date: { zh: '日期', en: 'Date' } as Bi,
+    time: { zh: '時間', en: 'Time' } as Bi,
+    venue: { zh: '地點', en: 'Venue' } as Bi,
   },
 
   stamps: {

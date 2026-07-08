@@ -2,12 +2,14 @@ import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { content } from '../content';
 import { BiText } from './BiText';
+import { useLang } from '../i18n';
 import { fileToCompressedBase64 } from '../lib/image';
 import { submitRSVP } from '../lib/submit';
 
 type Attending = 'wedding' | 'afterParty';
 
 export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
+  const { t } = useLang();
   const [name, setName] = useState('');
   const [guestCount, setGuestCount] = useState(1);
   const [attending, setAttending] = useState<Set<Attending>>(new Set());
@@ -38,7 +40,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
     setError(null);
 
     if (!name.trim() || attending.size === 0) {
-      setError(content.form.errorRequired.zh + ' / ' + content.form.errorRequired.en);
+      setError(t(content.form.errorRequired));
       return;
     }
 
@@ -60,7 +62,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
       onSubmitted();
     } catch (err) {
       console.error(err);
-      setError(content.form.errorGeneric.zh + ' / ' + content.form.errorGeneric.en);
+      setError(t(content.form.errorGeneric));
     } finally {
       setSubmitting(false);
     }
@@ -80,22 +82,20 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
         <BiText
           text={content.form.heading}
           as="h2"
-          className="text-center"
-          zhClassName="text-2xl font-semibold text-passport-green"
-          enClassName="text-sm text-passport-green/60 not-italic tracking-[0.2em] uppercase"
+          className="text-center text-2xl font-semibold text-passport-green"
         />
 
         {/* name */}
         <div>
           <label htmlFor="rsvp-name" className="block text-sm font-medium text-ink">
-            {content.form.name.zh} <span className="text-ink/50 italic">/ {content.form.name.en}</span>
+            {t(content.form.name)}
           </label>
           <input
             id="rsvp-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={`${content.form.namePlaceholder.zh} / ${content.form.namePlaceholder.en}`}
+            placeholder={t(content.form.namePlaceholder)}
             className="mt-2 w-full rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30"
           />
         </div>
@@ -103,7 +103,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
         {/* guest count */}
         <div>
           <label htmlFor="rsvp-count" className="block text-sm font-medium text-ink">
-            {content.form.guestCount.zh} <span className="text-ink/50 italic">/ {content.form.guestCount.en}</span>
+            {t(content.form.guestCount)}
           </label>
           <input
             id="rsvp-count"
@@ -118,12 +118,8 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
 
         {/* attending */}
         <div>
-          <span className="block text-sm font-medium text-ink">
-            {content.form.attending.zh} <span className="text-ink/50 italic">/ {content.form.attending.en}</span>
-          </span>
-          <p className="mt-1 text-xs text-ink/50">
-            {content.form.attendingHint.zh} · {content.form.attendingHint.en}
-          </p>
+          <span className="block text-sm font-medium text-ink">{t(content.form.attending)}</span>
+          <p className="mt-1 text-xs text-ink/50">{t(content.form.attendingHint)}</p>
 
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             {(
@@ -146,10 +142,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
                   onChange={() => toggleAttending(value)}
                   className="h-4 w-4 accent-passport-green"
                 />
-                <span>
-                  <span className="block font-serif-zh text-sm font-medium">{label.zh}</span>
-                  <span className="block font-serif-en text-xs text-ink/50 italic">{label.en}</span>
-                </span>
+                <span className="text-sm font-medium">{t(label)}</span>
               </label>
             ))}
           </div>
@@ -157,12 +150,8 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
 
         {/* photo */}
         <div>
-          <span className="block text-sm font-medium text-ink">
-            {content.form.photo.zh} <span className="text-ink/50 italic">/ {content.form.photo.en}</span>
-          </span>
-          <p className="mt-1 text-xs text-ink/50">
-            {content.form.photoHint.zh} · {content.form.photoHint.en}
-          </p>
+          <span className="block text-sm font-medium text-ink">{t(content.form.photo)}</span>
+          <p className="mt-1 text-xs text-ink/50">{t(content.form.photoHint)}</p>
 
           <div className="mt-3 flex items-center gap-4">
             {photoPreview && (
@@ -177,10 +166,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
               onClick={() => fileInputRef.current?.click()}
               className="rounded-lg border border-passport-green/30 bg-cream/60 px-4 py-2 text-sm text-passport-green"
             >
-              {photoFile ? content.form.photoChange.zh : content.form.photoChoose.zh}
-              <span className="ml-1 text-xs text-ink/50 italic">
-                / {photoFile ? content.form.photoChange.en : content.form.photoChoose.en}
-              </span>
+              {photoFile ? t(content.form.photoChange) : t(content.form.photoChoose)}
             </button>
             <input
               ref={fileInputRef}
@@ -198,14 +184,9 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
           type="submit"
           disabled={submitting}
           whileTap={{ scale: 0.97 }}
-          className="w-full rounded-full bg-passport-green py-3 text-passport-gold shadow-md disabled:opacity-60"
+          className="w-full rounded-full bg-passport-green py-3 font-medium text-passport-gold shadow-md disabled:opacity-60"
         >
-          <span className="font-serif-zh font-medium">
-            {submitting ? content.form.submitting.zh : content.form.submit.zh}
-          </span>
-          <span className="ml-2 font-serif-en text-sm italic opacity-80">
-            {submitting ? content.form.submitting.en : content.form.submit.en}
-          </span>
+          {submitting ? t(content.form.submitting) : t(content.form.submit)}
         </motion.button>
       </form>
     </motion.section>

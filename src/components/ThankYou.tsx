@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
 import { content } from '../content';
 import { BiText } from './BiText';
+import { useLang } from '../i18n';
 import { LINE_GROUP_URL, WHATSAPP_GROUP_URL } from '../config';
 
 export function ThankYou() {
+  const { t } = useLang();
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 16 }}
@@ -15,16 +18,13 @@ export function ThankYou() {
         <BiText
           text={content.thankYou.heading}
           as="h2"
-          zhClassName="text-2xl font-semibold text-passport-green"
-          enClassName="text-sm text-passport-green/60 not-italic tracking-[0.2em] uppercase"
+          className="text-2xl font-semibold text-passport-green"
         />
 
         <BiText
           text={content.thankYou.paragraph}
           as="p"
-          className="mx-auto mt-4 max-w-md"
-          zhClassName="text-base leading-relaxed text-ink"
-          enClassName="mt-2 text-sm leading-relaxed text-ink/60 not-italic"
+          className="mx-auto mt-4 max-w-md text-base leading-relaxed text-ink"
         />
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -34,7 +34,7 @@ export function ThankYou() {
             rel="noreferrer"
             className="flex-1 rounded-full bg-[#06C755] px-6 py-3 font-medium text-white shadow-md transition-transform hover:scale-[1.02]"
           >
-            {content.thankYou.line.zh} <span className="opacity-80">/ {content.thankYou.line.en}</span>
+            {t(content.thankYou.line)}
           </a>
           <a
             href={WHATSAPP_GROUP_URL}
@@ -42,7 +42,7 @@ export function ThankYou() {
             rel="noreferrer"
             className="flex-1 rounded-full bg-[#25D366] px-6 py-3 font-medium text-white shadow-md transition-transform hover:scale-[1.02]"
           >
-            {content.thankYou.whatsapp.zh} <span className="opacity-80">/ {content.thankYou.whatsapp.en}</span>
+            {t(content.thankYou.whatsapp)}
           </a>
         </div>
       </div>

@@ -14,9 +14,7 @@ export function IntroSection() {
       <BiText
         text={content.intro.paragraph}
         as="p"
-        className="mx-auto max-w-xl text-center"
-        zhClassName="text-base leading-relaxed text-ink sm:text-lg"
-        enClassName="mt-3 text-sm leading-relaxed text-ink/60 not-italic"
+        className="mx-auto max-w-xl text-center text-base leading-relaxed text-ink sm:text-lg"
       />
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row">

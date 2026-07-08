@@ -1,23 +1,18 @@
 import type { ElementType } from 'react';
 import type { Bi } from '../content';
+import { serifFor, useLang } from '../i18n';
 
+// Renders a single Bi string in the currently selected language,
+// using the serif face that matches that language.
 export function BiText({
   text,
   as: Tag = 'div',
   className = '',
-  enClassName = '',
-  zhClassName = '',
 }: {
   text: Bi;
   as?: ElementType;
   className?: string;
-  enClassName?: string;
-  zhClassName?: string;
 }) {
-  return (
-    <Tag className={className}>
-      <span className={`block font-serif-zh ${zhClassName}`}>{text.zh}</span>
-      <span className={`block font-serif-en italic opacity-70 ${enClassName}`}>{text.en}</span>
-    </Tag>
-  );
+  const { lang, t } = useLang();
+  return <Tag className={`${serifFor(lang)} ${className}`}>{t(text)}</Tag>;
 }

@@ -5,6 +5,7 @@ import { PassportBook } from './components/PassportBook';
 import { IntroSection } from './components/IntroSection';
 import { RSVPForm } from './components/RSVPForm';
 import { ThankYou } from './components/ThankYou';
+import { LanguageToggle } from './components/LanguageToggle';
 
 function App() {
   const [opened, setOpened] = useState(false);
@@ -19,6 +20,8 @@ function App() {
         <div className="absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-passport-gold/20 blur-3xl" />
         <div className="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-blush/30 blur-3xl" />
       </div>
+
+      <LanguageToggle />
 
       <AnimatePresence mode="wait">{!opened && <PassportCover key="cover" onOpen={() => setOpened(true)} />}</AnimatePresence>
 

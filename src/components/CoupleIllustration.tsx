@@ -1,32 +1,36 @@
+// Two upright figures standing together — a simple, hand-drawn feel matching
+// the passport-cover sketch. Groom (left) in a suit, bride (right) in a dress.
 export function CoupleIllustration({ className = '' }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 240 190"
+      viewBox="0 0 220 180"
       fill="none"
       className={className}
       role="img"
-      aria-label="Illustration of the couple"
+      aria-label="Colbert and Crystal"
     >
-      <g stroke="currentColor" strokeWidth={2.25} strokeLinecap="round" strokeLinejoin="round">
-        {/* heart above the couple */}
-        <path d="M120 8c-9-11-26-6-26 6 0 10 15 18 26 27 11-9 26-17 26-27 0-12-17-17-26-6Z" />
+      <g stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+        {/* ── Groom (left) ── */}
+        {/* head */}
+        <circle cx="82" cy="48" r="20" />
+        {/* short hair */}
+        <path d="M63 44c1-15 9-24 19-24s18 9 19 24" />
+        {/* shoulders + suit body */}
+        <path d="M50 162c0-40 8-70 32-70s32 30 32 70" />
+        {/* collar + lapel */}
+        <path d="M82 92l-9 13 9 7 9-7-9-13" />
+        <path d="M82 119v34" />
 
-        {/* joined hands */}
-        <path d="M96 118c8-6 18-9 24-9s16 3 24 9" />
-
-        {/* groom */}
-        <circle cx="82" cy="42" r="16" />
-        <path d="M82 58v6" />
-        <path d="M62 108c0-24 4-38 20-38s20 14 20 38l6 44H56l6-44Z" />
-        <path d="M82 70v40" />
-        <path d="M74 78l8 6 8-6" />
-
-        {/* bride */}
-        <path d="M138 34c8-14 28-14 36 0" />
-        <circle cx="156" cy="42" r="15" />
-        <path d="M156 57v6" />
-        <path d="M132 118c2-26 8-40 24-40s22 14 24 40l10 34H122l10-34Z" />
-        <path d="M144 108c8 6 20 6 28 0" />
+        {/* ── Bride (right) ── */}
+        {/* head */}
+        <circle cx="144" cy="50" r="19" />
+        {/* long hair framing the face */}
+        <path d="M125 50c-2-19 8-29 19-29s21 10 19 29" />
+        <path d="M126 52c-4 18-3 34 1 46" />
+        <path d="M162 52c4 18 3 34-1 46" />
+        {/* dress: gently flaring skirt */}
+        <path d="M116 164c1-34 10-66 28-66s27 32 28 66" />
+        <path d="M116 164q28 8 56 0" />
       </g>
     </svg>
   );
