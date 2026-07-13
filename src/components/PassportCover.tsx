@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { content } from '../content';
-import { CoupleIllustration } from './CoupleIllustration';
 import { BiText } from './BiText';
 import { useLang, serifFor } from '../i18n';
+import couplePng from '../assets/couple.png';
 
 export function PassportCover({ onOpen }: { onOpen: () => void }) {
   const { lang, t } = useLang();
@@ -36,10 +36,16 @@ export function PassportCover({ onOpen }: { onOpen: () => void }) {
             />
 
             {/* couple line art */}
-            <CoupleIllustration className="mt-5 h-32 w-auto text-passport-gold sm:h-36" />
+            <div className="flex w-full min-h-0 flex-1 items-center justify-center py-2">
+              <img
+                src={couplePng}
+                alt="Colbert & Crystal"
+                className="max-h-full w-auto object-contain"
+              />
+            </div>
 
             {/* names */}
-            <p className="font-serif-en mt-auto text-xl tracking-wide sm:text-2xl">
+            <p className="font-serif-en text-xl tracking-wide sm:text-2xl">
               {content.cover.names}
             </p>
 
