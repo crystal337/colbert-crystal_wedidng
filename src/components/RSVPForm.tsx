@@ -31,7 +31,7 @@ const relationshipZh: Record<Relationship, string> = {
   brideFriend: content.form.relBrideFriend.zh,
 };
 
-export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
+export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void }) {
   const { t } = useLang();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -111,7 +111,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
         photoFileName: photoFile?.name,
       });
 
-      onSubmitted();
+      onSubmitted(name.trim());
     } catch (err) {
       console.error(err);
       setError(t(content.form.errorGeneric));
@@ -127,6 +127,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
     <motion.section
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 24, transition: { duration: 0.35, ease: 'easeIn' } }}
       transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
       className="mx-auto w-full max-w-xl px-4 py-10"
     >

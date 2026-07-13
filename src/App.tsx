@@ -4,12 +4,19 @@ import { PassportCover } from './components/PassportCover';
 import { PassportPages } from './components/PassportPages';
 import { IntroSection } from './components/IntroSection';
 import { RSVPForm } from './components/RSVPForm';
+import { BoardingPass } from './components/BoardingPass';
 import { ThankYou } from './components/ThankYou';
 import { LanguageToggle } from './components/LanguageToggle';
 
 function App() {
   const [opened, setOpened] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [guestName, setGuestName] = useState('');
+
+  const handleSubmitted = (name: string) => {
+    setGuestName(name);
+    setSubmitted(true);
+  };
 
   return (
     <div className="relative min-h-svh overflow-x-hidden">
@@ -30,7 +37,16 @@ function App() {
         <div className="pb-20">
           <PassportPages />
           <IntroSection />
-          {submitted ? <ThankYou /> : <RSVPForm onSubmitted={() => setSubmitted(true)} />}
+          <AnimatePresence mode="wait">
+            {submitted ? (
+              <div key="pass">
+                <BoardingPass name={guestName} />
+                <ThankYou />
+              </div>
+            ) : (
+              <RSVPForm key="form" onSubmitted={handleSubmitted} />
+            )}
+          </AnimatePresence>
         </div>
       )}
     </div>

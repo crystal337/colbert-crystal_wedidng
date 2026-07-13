@@ -122,6 +122,36 @@ export const content = {
     } as Bi,
   },
 
+  // Digital "boarding pass" shown after the form is submitted.
+  // Field labels are kept in English for an authentic ticket look; the
+  // editable values below are what you'd tweak (codes, gate, time…).
+  boardingPass: {
+    title: 'BOARDING PASS',
+    subtitle: { zh: '婚禮登機證', en: 'Wedding Boarding Pass' } as Bi,
+    fromCode: 'TPE',
+    fromCity: { zh: '台北', en: 'Taipei' } as Bi,
+    toCode: 'WED',
+    toCity: { zh: '婚禮', en: 'The Wedding' } as Bi,
+    flight: 'CC 0123',
+    date: '23 JAN 2027',
+    boardingTime: '11:30',
+    gate: { zh: '宴會廳', en: 'Ballroom' } as Bi,
+    seat: { zh: '自由入座', en: 'Open Seating' } as Bi,
+    passengerLabel: 'PASSENGER',
+    fallbackName: { zh: '貴賓', en: 'Guest' } as Bi,
+    note: { zh: '謝謝你加入我們的旅程', en: 'Thank you for joining our journey' } as Bi,
+    shareHint: { zh: '截圖，分享你的登機證 ✈', en: 'Screenshot & share your boarding pass ✈' } as Bi,
+    labels: {
+      from: 'FROM',
+      to: 'TO',
+      flight: 'FLIGHT',
+      date: 'DATE',
+      boarding: 'BOARDING',
+      gate: 'GATE',
+      seat: 'SEAT',
+    },
+  },
+
   thankYou: {
     heading: { zh: '謝謝你的回覆！', en: 'Thank You!' } as Bi,
     paragraph: {
