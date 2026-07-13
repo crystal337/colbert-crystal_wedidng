@@ -1,36 +1,27 @@
-// Two upright figures standing together — a simple, hand-drawn feel matching
-// the passport-cover sketch. Groom (left) in a suit, bride (right) in a dress.
+// Elegant, hand-drawn line art: the bride resting her head on the groom's
+// shoulder, with her hair flowing down — two "cameo" busts nestled together.
 export function CoupleIllustration({ className = '' }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 220 180"
+      viewBox="0 0 200 200"
       fill="none"
       className={className}
       role="img"
       aria-label="Colbert and Crystal"
     >
-      <g stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-        {/* ── Groom (left) ── */}
-        {/* head */}
-        <circle cx="82" cy="48" r="20" />
-        {/* short hair */}
-        <path d="M63 44c1-15 9-24 19-24s18 9 19 24" />
-        {/* shoulders + suit body */}
-        <path d="M50 162c0-40 8-70 32-70s32 30 32 70" />
-        {/* collar + lapel */}
-        <path d="M82 92l-9 13 9 7 9-7-9-13" />
-        <path d="M82 119v34" />
+      <g stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        {/* groom — head + shoulder */}
+        <circle cx="72" cy="58" r="25" />
+        <path d="M34 156C38 111 54 96 72 96c14 0 26 9 33 24" />
 
-        {/* ── Bride (right) ── */}
-        {/* head */}
-        <circle cx="144" cy="50" r="19" />
-        {/* long hair framing the face */}
-        <path d="M125 50c-2-19 8-29 19-29s21 10 19 29" />
-        <path d="M126 52c-4 18-3 34 1 46" />
-        <path d="M162 52c4 18 3 34-1 46" />
-        {/* dress: gently flaring skirt */}
-        <path d="M116 164c1-34 10-66 28-66s27 32 28 66" />
-        <path d="M116 164q28 8 56 0" />
+        {/* bride — head tilted onto his shoulder */}
+        <g transform="rotate(-12 116 100)">
+          <circle cx="116" cy="100" r="21" />
+          <path d="M96 170c2-37 10-49 20-49 13 0 25 12 30 40" />
+        </g>
+
+        {/* her flowing hair */}
+        <path d="M132 92c17 18 19 56 8 92" />
       </g>
     </svg>
   );
