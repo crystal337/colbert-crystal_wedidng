@@ -2,8 +2,13 @@ import { GAS_ENDPOINT } from '../config';
 
 export type RSVPPayload = {
   name: string;
+  email: string;
+  relationship: string;
   guestCount: number;
+  companions: string[];
   attending: ('wedding' | 'afterParty')[];
+  childChair: string;
+  vegetarianCount: number;
   photoBase64?: string;
   photoFileName?: string;
 };

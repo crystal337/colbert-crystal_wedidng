@@ -48,9 +48,11 @@ apps-script/
    ```
    VITE_GAS_ENDPOINT=https://script.google.com/macros/s/xxxxxxxx/exec
    ```
-7. 重新啟動 `npm run dev` 即可生效。之後每次表單送出，都會自動在 Sheet 裡新增一列（時間、姓名、人數、參加活動、照片連結）；若賓客有上傳照片，照片會存進一個叫「Wedding RSVP Photos」的 Google Drive 資料夾，並把分享連結記錄在 Sheet 裡。
+7. 重新啟動 `npm run dev` 即可生效。之後每次表單送出，都會自動在 Sheet 裡新增一列（時間、姓名、電郵、與新人關係、人數、同行賓客、參加活動、兒童椅、素食人數、照片連結）；若賓客有上傳照片，照片會存進一個叫「Wedding RSVP Photos」的 Google Drive 資料夾，並把分享連結記錄在 Sheet 裡。
 
 > 之後如果要修改 Apps Script 程式碼，記得改完要重新 **Deploy → Manage deployments → Edit → 版本選 New version** 才會生效。
+
+> ⚠️ 表單欄位有更新過（新增電郵、關係、同行賓客、兒童椅、素食人數）。如果你**之前已經測試過、Sheet 裡已經有一個叫 `RSVP` 的分頁**，它的標題列還是舊的。最簡單的做法：把那個 `RSVP` 分頁整個刪掉，下次有人送出表單時程式會自動用新的欄位重新建立；或手動把標題列改成上面那 10 欄。
 
 ## 2. 設定 LINE / WhatsApp 群組連結
 

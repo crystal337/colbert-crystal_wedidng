@@ -51,7 +51,7 @@ export const content = {
       name: { zh: 'After Party', en: 'After Party' } as Bi,
       location: { zh: '地點待訂', en: 'Venue TBD' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
-      time: { zh: '16:00 後（時間待定）', en: 'From 4:00 PM (time TBD)' } as Bi,
+      time: { zh: '17:00', en: '5:00 PM' } as Bi,
       description: {
         zh: '和大家多聚聚、聊聊天',
         en: 'A relaxed gathering to catch up and chat together',
@@ -63,7 +63,24 @@ export const content = {
     heading: { zh: '賓客回覆', en: 'RSVP' } as Bi,
     name: { zh: '姓名', en: 'Name' } as Bi,
     namePlaceholder: { zh: '請輸入你的姓名', en: 'Your name' } as Bi,
+
+    email: { zh: '電郵', en: 'Email' } as Bi,
+    emailPlaceholder: { zh: '請輸入電子郵件', en: 'Your email' } as Bi,
+
+    relationship: { zh: '與新人關係', en: 'Relationship to the Couple' } as Bi,
+    relGroomRelative: { zh: '男方親戚', en: "Groom's Relative" } as Bi,
+    relBrideRelative: { zh: '女方親戚', en: "Bride's Relative" } as Bi,
+    relGroomFriend: { zh: '男方朋友', en: "Groom's Friend" } as Bi,
+    relBrideFriend: { zh: '女方朋友', en: "Bride's Friend" } as Bi,
+
     guestCount: { zh: '出席人數', en: 'Number of Guests' } as Bi,
+    companions: { zh: '同行賓客姓名', en: 'Accompanying Guests' } as Bi,
+    companionsHint: {
+      zh: '請填寫其他同行者的姓名',
+      en: 'Names of the other guests joining you',
+    } as Bi,
+    companionPlaceholder: { zh: '姓名', en: 'Name' } as Bi,
+
     attending: { zh: '參加活動', en: 'Attending' } as Bi,
     attendingHint: {
       zh: '可複選，兩個活動都能參加',
@@ -71,6 +88,15 @@ export const content = {
     } as Bi,
     attendWedding: { zh: '婚禮', en: 'Wedding Ceremony' } as Bi,
     attendAfterParty: { zh: 'After Party', en: 'After Party' } as Bi,
+
+    childChair: { zh: '是否需要兒童椅', en: 'Need a High Chair?' } as Bi,
+    childChairYes: { zh: '是', en: 'Yes' } as Bi,
+    childChairNo: { zh: '否', en: 'No' } as Bi,
+    childChairOther: { zh: '其他', en: 'Other' } as Bi,
+    childChairOtherPlaceholder: { zh: '請說明', en: 'Please specify' } as Bi,
+
+    vegetarianCount: { zh: '素食人數', en: 'Number of Vegetarians' } as Bi,
+
     photo: { zh: '上傳照片', en: 'Upload a Photo' } as Bi,
     photoHint: { zh: '選填，留下一張你的照片給我們', en: 'Optional — share a photo of yourself with us' } as Bi,
     photoChoose: { zh: '選擇照片', en: 'Choose Photo' } as Bi,

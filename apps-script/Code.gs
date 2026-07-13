@@ -23,8 +23,13 @@ function doPost(e) {
     getSheet().appendRow([
       new Date(),
       data.name,
+      data.email || '',
+      data.relationship || '',
       data.guestCount || 1,
+      (data.companions || []).join(', '),
       data.attending.join(', '),
+      data.childChair || '',
+      data.vegetarianCount || 0,
       photoUrl,
     ]);
 
@@ -43,7 +48,18 @@ function getSheet() {
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(['Timestamp', 'Name 姓名', 'Guest Count 人數', 'Attending 參加活動', 'Photo 照片']);
+    sheet.appendRow([
+      'Timestamp',
+      'Name 姓名',
+      'Email 電郵',
+      'Relationship 與新人關係',
+      'Guest Count 人數',
+      'Companions 同行賓客',
+      'Attending 參加活動',
+      'High Chair 兒童椅',
+      'Vegetarians 素食人數',
+      'Photo 照片',
+    ]);
   }
   return sheet;
 }

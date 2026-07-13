@@ -7,17 +7,57 @@ import { fileToCompressedBase64 } from '../lib/image';
 import { submitRSVP } from '../lib/submit';
 
 type Attending = 'wedding' | 'afterParty';
+type Relationship = 'groomRelative' | 'brideRelative' | 'groomFriend' | 'brideFriend';
+type ChildChair = 'no' | 'yes' | 'other';
+
+const relationships = [
+  ['groomRelative', content.form.relGroomRelative],
+  ['brideRelative', content.form.relBrideRelative],
+  ['groomFriend', content.form.relGroomFriend],
+  ['brideFriend', content.form.relBrideFriend],
+] as const;
+
+const childChairOptions = [
+  ['no', content.form.childChairNo],
+  ['yes', content.form.childChairYes],
+  ['other', content.form.childChairOther],
+] as const;
+
+// Chinese labels stored in the Google Sheet, regardless of the guest's UI language.
+const relationshipZh: Record<Relationship, string> = {
+  groomRelative: content.form.relGroomRelative.zh,
+  brideRelative: content.form.relBrideRelative.zh,
+  groomFriend: content.form.relGroomFriend.zh,
+  brideFriend: content.form.relBrideFriend.zh,
+};
 
 export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
   const { t } = useLang();
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [relationship, setRelationship] = useState<Relationship | null>(null);
   const [guestCount, setGuestCount] = useState(1);
+  const [companions, setCompanions] = useState<string[]>([]);
   const [attending, setAttending] = useState<Set<Attending>>(new Set());
+  const [childChair, setChildChair] = useState<ChildChair>('no');
+  const [childChairOther, setChildChairOther] = useState('');
+  const [vegetarianCount, setVegetarianCount] = useState(0);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleGuestCount = (raw: number) => {
+    const count = Math.max(1, Math.min(20, raw || 1));
+    setGuestCount(count);
+    setCompanions((prev) => {
+      const next = prev.slice(0, count - 1);
+      while (next.length < count - 1) next.push('');
+      return next;
+    });
+    setVegetarianCount((v) => Math.min(v, count));
+  };
 
   const toggleAttending = (value: Attending) => {
     setAttending((prev) => {
@@ -51,10 +91,22 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
         photoBase64 = await fileToCompressedBase64(photoFile);
       }
 
+      const childChairZh =
+        childChair === 'other'
+          ? `${content.form.childChairOther.zh}：${childChairOther.trim()}`
+          : childChair === 'yes'
+            ? content.form.childChairYes.zh
+            : content.form.childChairNo.zh;
+
       await submitRSVP({
         name: name.trim(),
+        email: email.trim(),
+        relationship: relationship ? relationshipZh[relationship] : '',
         guestCount,
+        companions: companions.map((c) => c.trim()).filter(Boolean),
         attending: Array.from(attending),
+        childChair: childChairZh,
+        vegetarianCount,
         photoBase64,
         photoFileName: photoFile?.name,
       });
@@ -67,6 +119,9 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
       setSubmitting(false);
     }
   };
+
+  const inputClass =
+    'mt-2 w-full rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30';
 
   return (
     <motion.section
@@ -96,8 +151,45 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t(content.form.namePlaceholder)}
-            className="mt-2 w-full rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30"
+            className={inputClass}
           />
+        </div>
+
+        {/* email */}
+        <div>
+          <label htmlFor="rsvp-email" className="block text-sm font-medium text-ink">
+            {t(content.form.email)}
+          </label>
+          <input
+            id="rsvp-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t(content.form.emailPlaceholder)}
+            className={inputClass}
+          />
+        </div>
+
+        {/* relationship to the couple */}
+        <div>
+          <span className="block text-sm font-medium text-ink">{t(content.form.relationship)}</span>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {relationships.map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setRelationship(value)}
+                aria-pressed={relationship === value}
+                className={`rounded-lg border px-4 py-2.5 text-sm transition-colors ${
+                  relationship === value
+                    ? 'border-passport-gold bg-passport-gold/15 font-medium text-passport-green'
+                    : 'border-passport-green/20 bg-cream/60 text-ink'
+                }`}
+              >
+                {t(label)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* guest count */}
@@ -111,10 +203,36 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
             min={1}
             max={20}
             value={guestCount}
-            onChange={(e) => setGuestCount(Math.max(1, Number(e.target.value) || 1))}
+            onChange={(e) => handleGuestCount(Number(e.target.value))}
             className="mt-2 w-28 rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30"
           />
         </div>
+
+        {/* companions — only when more than one guest */}
+        {guestCount > 1 && (
+          <div>
+            <span className="block text-sm font-medium text-ink">{t(content.form.companions)}</span>
+            <p className="mt-1 text-xs text-ink/50">{t(content.form.companionsHint)}</p>
+            <div className="mt-3 space-y-2">
+              {companions.map((value, i) => (
+                <input
+                  key={i}
+                  type="text"
+                  value={value}
+                  onChange={(e) =>
+                    setCompanions((prev) => {
+                      const next = [...prev];
+                      next[i] = e.target.value;
+                      return next;
+                    })
+                  }
+                  placeholder={`${t(content.form.companionPlaceholder)} ${i + 2}`}
+                  className="w-full rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* attending */}
         <div>
@@ -146,6 +264,55 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: () => void }) {
               </label>
             ))}
           </div>
+        </div>
+
+        {/* high chair */}
+        <div>
+          <span className="block text-sm font-medium text-ink">{t(content.form.childChair)}</span>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {childChairOptions.map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setChildChair(value)}
+                aria-pressed={childChair === value}
+                className={`rounded-lg border px-5 py-2 text-sm transition-colors ${
+                  childChair === value
+                    ? 'border-passport-gold bg-passport-gold/15 font-medium text-passport-green'
+                    : 'border-passport-green/20 bg-cream/60 text-ink'
+                }`}
+              >
+                {t(label)}
+              </button>
+            ))}
+          </div>
+          {childChair === 'other' && (
+            <input
+              type="text"
+              value={childChairOther}
+              onChange={(e) => setChildChairOther(e.target.value)}
+              placeholder={t(content.form.childChairOtherPlaceholder)}
+              className={inputClass}
+            />
+          )}
+        </div>
+
+        {/* vegetarian count */}
+        <div>
+          <label htmlFor="rsvp-veg" className="block text-sm font-medium text-ink">
+            {t(content.form.vegetarianCount)}
+          </label>
+          <input
+            id="rsvp-veg"
+            type="number"
+            min={0}
+            max={guestCount}
+            value={vegetarianCount}
+            onChange={(e) =>
+              setVegetarianCount(Math.max(0, Math.min(guestCount, Number(e.target.value) || 0)))
+            }
+            className="mt-2 w-28 rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30"
+          />
         </div>
 
         {/* photo */}
