@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { PassportCover } from './components/PassportCover';
-import { PassportBook } from './components/PassportBook';
+import { PassportPages } from './components/PassportPages';
 import { IntroSection } from './components/IntroSection';
 import { RSVPForm } from './components/RSVPForm';
 import { ThankYou } from './components/ThankYou';
@@ -9,7 +9,6 @@ import { LanguageToggle } from './components/LanguageToggle';
 
 function App() {
   const [opened, setOpened] = useState(false);
-  const [bookDone, setBookDone] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   return (
@@ -23,18 +22,15 @@ function App() {
 
       <LanguageToggle />
 
-      <AnimatePresence mode="wait">{!opened && <PassportCover key="cover" onOpen={() => setOpened(true)} />}</AnimatePresence>
+      <AnimatePresence mode="wait">
+        {!opened && <PassportCover key="cover" onOpen={() => setOpened(true)} />}
+      </AnimatePresence>
 
       {opened && (
         <div className="pb-20">
-          <PassportBook onDone={() => setBookDone(true)} />
-
-          {bookDone && (
-            <>
-              <IntroSection />
-              {submitted ? <ThankYou /> : <RSVPForm onSubmitted={() => setSubmitted(true)} />}
-            </>
-          )}
+          <PassportPages />
+          <IntroSection />
+          {submitted ? <ThankYou /> : <RSVPForm onSubmitted={() => setSubmitted(true)} />}
         </div>
       )}
     </div>

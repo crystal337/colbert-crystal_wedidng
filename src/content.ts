@@ -6,13 +6,25 @@ export const content = {
     title: "Colbert & Crystal's Wedding",
   },
 
+  // The cover is always shown in English, regardless of the language toggle.
   cover: {
-    passportWord: { zh: '護照', en: 'PASSPORT' } as Bi,
-    subtitle: { zh: '我們的婚禮旅程', en: 'the marriage…' } as Bi,
-    names: 'Colbert & Crystal',
-    date: { zh: '2027 年 1 月', en: 'Jan 2027' } as Bi,
-    openButton: { zh: '打開', en: 'Open' } as Bi,
+    passportWord: 'PASSPORT',
+    line: 'Marriage of Crystal & Colbert',
+    date: 'Jan 2027',
+    openButton: 'Open',
   },
+
+  // The four inner "passport" pages: three story pages (image + text) and a
+  // closing invitation. These follow the language toggle.
+  story: [
+    { zh: '我們因留港讀書相識、相知', en: 'We met and grew close while studying in Hong Kong' } as Bi,
+    { zh: '在不斷的遠距離中相守', en: 'Through years of long distance, we stayed devoted to each other' } as Bi,
+    { zh: '如今，我們要結婚啦！', en: 'And now — we’re getting married!' } as Bi,
+    {
+      zh: '謝謝你/妳曾參與我們的生命，我們滿心期待地邀請你一起見證我們的婚姻。請告訴我們，你希望帶著這本護照，參與哪一段旅程呢？',
+      en: 'Thank you for being part of our lives. With full hearts, we invite you to witness our marriage — please tell us which part of the journey you’d like to join us for with this passport.',
+    } as Bi,
+  ] as Bi[],
 
   langToggle: {
     // label shown on the switcher for the language you'd switch TO
