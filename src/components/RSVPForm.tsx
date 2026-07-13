@@ -7,14 +7,17 @@ import { fileToCompressedBase64 } from '../lib/image';
 import { submitRSVP } from '../lib/submit';
 
 type Attending = 'wedding' | 'afterParty';
-type Relationship = 'groomRelative' | 'brideRelative' | 'groomFriend' | 'brideFriend';
+type Relationship = 'groomRelative' | 'brideRelative' | 'groomFriend' | 'brideFriend' | 'bothFriend';
 type ChildChair = 'no' | 'yes' | 'other';
+
+const MAX_GUESTS = 8;
 
 const relationships = [
   ['groomRelative', content.form.relGroomRelative],
   ['brideRelative', content.form.relBrideRelative],
   ['groomFriend', content.form.relGroomFriend],
   ['brideFriend', content.form.relBrideFriend],
+  ['bothFriend', content.form.relBothFriend],
 ] as const;
 
 const childChairOptions = [
@@ -29,6 +32,7 @@ const relationshipZh: Record<Relationship, string> = {
   brideRelative: content.form.relBrideRelative.zh,
   groomFriend: content.form.relGroomFriend.zh,
   brideFriend: content.form.relBrideFriend.zh,
+  bothFriend: content.form.relBothFriend.zh,
 };
 
 export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void }) {
@@ -49,7 +53,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGuestCount = (raw: number) => {
-    const count = Math.max(1, Math.min(20, raw || 1));
+    const count = Math.max(1, Math.min(MAX_GUESTS, raw || 1));
     setGuestCount(count);
     setCompanions((prev) => {
       const next = prev.slice(0, count - 1);
@@ -182,6 +186,8 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
                 onClick={() => setRelationship(value)}
                 aria-pressed={relationship === value}
                 className={`rounded-lg border px-4 py-2.5 text-sm transition-colors ${
+                  value === 'bothFriend' ? 'col-span-2' : ''
+                } ${
                   relationship === value
                     ? 'border-passport-gold bg-passport-gold/15 font-medium text-passport-green'
                     : 'border-passport-green/20 bg-cream/60 text-ink'
@@ -198,15 +204,18 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           <label htmlFor="rsvp-count" className="block text-sm font-medium text-ink">
             {t(content.form.guestCount)}
           </label>
-          <input
+          <select
             id="rsvp-count"
-            type="number"
-            min={1}
-            max={20}
             value={guestCount}
             onChange={(e) => handleGuestCount(Number(e.target.value))}
             className="mt-2 w-28 rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30"
-          />
+          >
+            {Array.from({ length: MAX_GUESTS }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* companions — only when more than one guest */}

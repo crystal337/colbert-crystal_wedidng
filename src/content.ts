@@ -34,8 +34,8 @@ export const content = {
 
   eventFields: {
     date: { zh: '日期', en: 'Date' } as Bi,
-    time: { zh: '時間', en: 'Time' } as Bi,
-    venue: { zh: '地點', en: 'Venue' } as Bi,
+    time: { zh: '登機時間', en: 'Boarding Time' } as Bi,
+    venue: { zh: '登機閘口', en: 'Boarding Gate' } as Bi,
   },
 
   stamps: {
@@ -52,15 +52,15 @@ export const content = {
 
   events: {
     wedding: {
-      badge: { zh: '活動一', en: 'Event 01' } as Bi,
+      badge: { zh: '主要目的地', en: 'Main Destination' } as Bi,
       name: { zh: '婚禮', en: 'Wedding Ceremony' } as Bi,
       location: { zh: '高雄洲際酒店', en: 'InterContinental Kaohsiung' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
       time: { zh: '11:30', en: '11:30 AM' } as Bi,
     },
     afterParty: {
-      badge: { zh: '活動二', en: 'Event 02' } as Bi,
-      name: { zh: 'After Party', en: 'After Party' } as Bi,
+      badge: { zh: '連接航班（可選）', en: 'Connected Flight (Optional)' } as Bi,
+      name: { zh: '晚餐聚會', en: 'Dinner Gathering' } as Bi,
       location: { zh: '地點待訂', en: 'Venue TBD' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
       time: { zh: '17:00', en: '5:00 PM' } as Bi,
@@ -84,8 +84,9 @@ export const content = {
     relBrideRelative: { zh: '女方親戚', en: "Bride's Relative" } as Bi,
     relGroomFriend: { zh: '男方朋友', en: "Groom's Friend" } as Bi,
     relBrideFriend: { zh: '女方朋友', en: "Bride's Friend" } as Bi,
+    relBothFriend: { zh: '男女雙方朋友', en: "Friend of Both" } as Bi,
 
-    guestCount: { zh: '出席人數', en: 'Number of Guests' } as Bi,
+    guestCount: { zh: '乘客人數', en: 'Number of Passengers' } as Bi,
     companions: { zh: '同行賓客姓名', en: 'Accompanying Guests' } as Bi,
     companionsHint: {
       zh: '請填寫其他同行者的姓名',
@@ -99,7 +100,7 @@ export const content = {
       en: 'Select all that apply — you’re welcome to join both',
     } as Bi,
     attendWedding: { zh: '婚禮', en: 'Wedding Ceremony' } as Bi,
-    attendAfterParty: { zh: 'After Party', en: 'After Party' } as Bi,
+    attendAfterParty: { zh: '晚餐聚會', en: 'Dinner Gathering' } as Bi,
 
     childChair: { zh: '是否需要兒童椅', en: 'Need a High Chair?' } as Bi,
     childChairYes: { zh: '是', en: 'Yes' } as Bi,

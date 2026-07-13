@@ -29,18 +29,24 @@ export function EventCard({
 
       <BiText text={name} as="h3" className="mt-3 text-xl font-semibold text-passport-green" />
 
-      <dl className="mt-4 space-y-2 text-sm">
-        <div className="flex gap-3">
-          <dt className="w-12 shrink-0 text-ink/50">{t(fields.date)}</dt>
-          <dd>{t(date)}</dd>
+      <dl className="mt-4 space-y-3">
+        <div>
+          <dt className="font-body-en text-[0.6rem] tracking-[0.12em] text-passport-green/50 uppercase">
+            {t(fields.date)}
+          </dt>
+          <dd className="text-sm text-ink">{t(date)}</dd>
         </div>
-        <div className="flex gap-3">
-          <dt className="w-12 shrink-0 text-ink/50">{t(fields.time)}</dt>
-          <dd>{t(time)}</dd>
+        <div>
+          <dt className="font-body-en text-[0.6rem] tracking-[0.12em] text-passport-green/50 uppercase">
+            {t(fields.time)}
+          </dt>
+          <dd className="text-sm text-ink">{t(time)}</dd>
         </div>
-        <div className="flex gap-3">
-          <dt className="w-12 shrink-0 text-ink/50">{t(fields.venue)}</dt>
-          <dd>{t(location)}</dd>
+        <div>
+          <dt className="font-body-en text-[0.6rem] tracking-[0.12em] text-passport-green/50 uppercase">
+            {t(fields.venue)}
+          </dt>
+          <dd className="text-sm text-ink">{t(location)}</dd>
         </div>
       </dl>
 
