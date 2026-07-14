@@ -50,7 +50,20 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       className="flex min-h-svh w-full flex-col items-center justify-center px-6 py-8"
     >
       <div className="w-full max-w-[21rem] sm:max-w-md lg:max-w-lg" style={{ perspective: 1800 }}>
-        <div className="relative aspect-[5/7]" style={{ transformStyle: 'preserve-3d' }}>
+        <div
+          className="relative aspect-[5/7] touch-pan-y"
+          style={{ transformStyle: 'preserve-3d' }}
+          onPointerDown={(e) => {
+            const startX = e.clientX;
+            const finish = (ev: PointerEvent) => {
+              window.removeEventListener('pointerup', finish);
+              const dx = ev.clientX - startX;
+              if (dx <= -50) paginate(1);
+              else if (dx >= 50) paginate(-1);
+            };
+            window.addEventListener('pointerup', finish);
+          }}
+        >
           <AnimatePresence custom={dir} initial={false}>
             <motion.div
               key={index}
@@ -59,7 +72,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.62, ease: 'easeInOut' }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
               style={{ backfaceVisibility: 'hidden' }}
               className="absolute inset-0"
             >

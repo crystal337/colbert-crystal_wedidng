@@ -118,15 +118,6 @@ export function BoardingPass({ name }: { name: string }) {
           </div>
         </motion.div>
       </div>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="mt-4 text-center text-xs text-passport-green/60"
-      >
-        {t(bp.shareHint)}
-      </motion.p>
     </section>
   );
 }
