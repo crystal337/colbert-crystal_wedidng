@@ -36,8 +36,14 @@ function doPost(e) {
     ]);
 
     // Send the guest a confirmation email echoing their answers.
+    // Never let an email problem (e.g. missing permission or quota) fail the
+    // submission itself — the RSVP is already saved above.
     if (data.email) {
-      sendConfirmationEmail(data);
+      try {
+        sendConfirmationEmail(data);
+      } catch (mailErr) {
+        // swallow; the response below still reports success
+      }
     }
 
     return jsonResponse({ ok: true });
