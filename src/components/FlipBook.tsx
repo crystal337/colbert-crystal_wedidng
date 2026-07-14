@@ -108,6 +108,18 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                     </motion.button>
                   </div>
                 </div>
+              ) : isInvite ? (
+                /* ---------- INVITATION — the passport's back cover ---------- */
+                <div className="relative flex h-full w-full flex-col items-center justify-center rounded-2xl border border-cover-gold/40 bg-passport-green px-9 text-center text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-12">
+                  <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/25" />
+                  <div className="relative z-10 space-y-5">
+                    {content.invite.map((para, i) => (
+                      <p key={i} className={`${serif} text-base leading-relaxed sm:text-lg lg:text-xl`}>
+                        {t(para)}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               ) : (
                 /* ---------- STORY PAGE ---------- */
                 <div className="h-full w-full rounded-2xl bg-passport-green p-2.5 shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:p-3">
@@ -116,29 +128,17 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                     <span className="font-body-en absolute top-3 right-4 z-20 text-[0.6rem] tracking-[0.25em] text-passport-green/40">
                       {String(index).padStart(2, '0')} / 04
                     </span>
-
-                    {isInvite ? (
-                      <div className="flex h-full flex-col items-center justify-center px-8 text-center sm:px-10 lg:px-14">
-                        <span className="mb-5 text-2xl text-passport-gold">♥</span>
-                        <p className={`${serif} text-lg leading-relaxed text-ink sm:text-xl lg:text-2xl`}>
-                          {t(content.story[storyIndex])}
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex min-h-0 flex-1 items-center justify-center p-4 pt-6">
-                          <img src={storyImages[storyIndex]} alt="" className="max-h-full max-w-full object-contain" />
-                        </div>
-                        <div className="flex flex-col items-center gap-2 px-6 pb-8 text-center">
-                          <span className="font-body-en text-[0.6rem] tracking-[0.2em] text-passport-green/50 uppercase">
-                            Chapter {String(index).padStart(2, '0')}
-                          </span>
-                          <p className={`${serif} text-lg leading-relaxed text-ink sm:text-xl`}>
-                            {t(content.story[storyIndex])}
-                          </p>
-                        </div>
-                      </>
-                    )}
+                    <div className="flex min-h-0 flex-1 items-center justify-center p-4 pt-6">
+                      <img src={storyImages[storyIndex]} alt="" className="max-h-full max-w-full object-contain" />
+                    </div>
+                    <div className="flex flex-col items-center gap-2 px-6 pb-8 text-center">
+                      <span className="font-body-en text-[0.6rem] tracking-[0.2em] text-passport-green/50 uppercase">
+                        Chapter {String(index).padStart(2, '0')}
+                      </span>
+                      <p className={`${serif} text-lg leading-relaxed text-ink sm:text-xl`}>
+                        {t(content.story[storyIndex])}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -159,11 +159,11 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
             </button>
 
             <div className="flex gap-2">
-              {content.story.map((_, i) => (
+              {Array.from({ length: PAGE_COUNT - 1 }).map((_, i) => (
                 <span
                   key={i}
                   className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                    i === storyIndex ? 'bg-passport-green' : 'bg-passport-green/25'
+                    i === index - 1 ? 'bg-passport-green' : 'bg-passport-green/25'
                   }`}
                 />
               ))}

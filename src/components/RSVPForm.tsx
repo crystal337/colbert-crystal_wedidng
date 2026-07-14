@@ -7,7 +7,13 @@ import { fileToCompressedBase64 } from '../lib/image';
 import { submitRSVP } from '../lib/submit';
 
 type Attending = 'wedding' | 'afterParty';
-type Relationship = 'groomRelative' | 'brideRelative' | 'groomFriend' | 'brideFriend' | 'bothFriend';
+type Relationship =
+  | 'groomRelative'
+  | 'brideRelative'
+  | 'groomFriend'
+  | 'brideFriend'
+  | 'bothFriend'
+  | 'other';
 type ChildChair = 'no' | 'yes' | 'other';
 
 const MAX_GUESTS = 8;
@@ -18,6 +24,7 @@ const relationships = [
   ['groomFriend', content.form.relGroomFriend],
   ['brideFriend', content.form.relBrideFriend],
   ['bothFriend', content.form.relBothFriend],
+  ['other', content.form.relOther],
 ] as const;
 
 const childChairOptions = [
@@ -27,7 +34,7 @@ const childChairOptions = [
 ] as const;
 
 // Chinese labels stored in the Google Sheet, regardless of the guest's UI language.
-const relationshipZh: Record<Relationship, string> = {
+const relationshipZh: Record<Exclude<Relationship, 'other'>, string> = {
   groomRelative: content.form.relGroomRelative.zh,
   brideRelative: content.form.relBrideRelative.zh,
   groomFriend: content.form.relGroomFriend.zh,
@@ -39,7 +46,8 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
   const { t } = useLang();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [relationship, setRelationship] = useState<Relationship | null>(null);
+  const [relationship, setRelationship] = useState<Set<Relationship>>(new Set());
+  const [relationshipOther, setRelationshipOther] = useState('');
   const [guestCount, setGuestCount] = useState(1);
   const [companions, setCompanions] = useState<string[]>([]);
   const [attending, setAttending] = useState<Set<Attending>>(new Set());
@@ -61,6 +69,15 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
       return next;
     });
     setVegetarianCount((v) => Math.min(v, count));
+  };
+
+  const toggleRelationship = (value: Relationship) => {
+    setRelationship((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
   };
 
   const toggleAttending = (value: Attending) => {
@@ -95,6 +112,16 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
         photoBase64 = await fileToCompressedBase64(photoFile);
       }
 
+      const relationshipStr = Array.from(relationship)
+        .map((r) =>
+          r === 'other'
+            ? relationshipOther.trim()
+              ? `${content.form.relOther.zh}：${relationshipOther.trim()}`
+              : content.form.relOther.zh
+            : relationshipZh[r],
+        )
+        .join('、');
+
       const childChairZh =
         childChair === 'other'
           ? `${content.form.childChairOther.zh}：${childChairOther.trim()}`
@@ -102,13 +129,17 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
             ? content.form.childChairYes.zh
             : content.form.childChairNo.zh;
 
+      const attendingLabels = Array.from(attending).map((v) =>
+        v === 'wedding' ? content.form.attendWedding.zh : content.form.attendAfterParty.zh,
+      );
+
       await submitRSVP({
         name: name.trim(),
         email: email.trim(),
-        relationship: relationship ? relationshipZh[relationship] : '',
+        relationship: relationshipStr,
         guestCount,
         companions: companions.map((c) => c.trim()).filter(Boolean),
-        attending: Array.from(attending),
+        attending: attendingLabels,
         childChair: childChairZh,
         vegetarianCount,
         photoBase64,
@@ -135,16 +166,16 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
       transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
       className="mx-auto w-full max-w-xl px-4 py-10"
     >
+      {/* heading + deadline, outside the form card */}
+      <div className="mb-6 text-center">
+        <BiText text={content.form.heading} as="h2" className="text-2xl font-semibold text-passport-green" />
+        <p className="mt-2 text-sm text-passport-green/70">{t(content.form.deadline)}</p>
+      </div>
+
       <form
         onSubmit={handleSubmit}
         className="space-y-6 rounded-2xl border border-passport-gold/40 bg-white/70 p-6 shadow-sm backdrop-blur-sm sm:p-8"
       >
-        <BiText
-          text={content.form.heading}
-          as="h2"
-          className="text-center text-2xl font-semibold text-passport-green"
-        />
-
         {/* name */}
         <div>
           <label htmlFor="rsvp-name" className="block text-sm font-medium text-ink">
@@ -175,20 +206,19 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           />
         </div>
 
-        {/* relationship to the couple */}
+        {/* relationship to the couple (multi-select) */}
         <div>
           <span className="block text-sm font-medium text-ink">{t(content.form.relationship)}</span>
+          <p className="mt-1 text-xs text-ink/50">{t(content.form.relationshipHint)}</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {relationships.map(([value, label]) => (
               <button
                 key={value}
                 type="button"
-                onClick={() => setRelationship(value)}
-                aria-pressed={relationship === value}
+                onClick={() => toggleRelationship(value)}
+                aria-pressed={relationship.has(value)}
                 className={`rounded-lg border px-4 py-2.5 text-sm transition-colors ${
-                  value === 'bothFriend' ? 'col-span-2' : ''
-                } ${
-                  relationship === value
+                  relationship.has(value)
                     ? 'border-passport-gold bg-passport-gold/15 font-medium text-passport-green'
                     : 'border-passport-green/20 bg-cream/60 text-ink'
                 }`}
@@ -197,6 +227,15 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
               </button>
             ))}
           </div>
+          {relationship.has('other') && (
+            <input
+              type="text"
+              value={relationshipOther}
+              onChange={(e) => setRelationshipOther(e.target.value)}
+              placeholder={t(content.form.relOtherPlaceholder)}
+              className={inputClass}
+            />
+          )}
         </div>
 
         {/* guest count */}
@@ -336,13 +375,13 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
               <img
                 src={photoPreview}
                 alt="Preview"
-                className="h-16 w-16 rounded-lg border border-passport-gold/40 object-cover"
+                className="h-20 w-20 rounded-lg border border-passport-gold/40 object-cover"
               />
             )}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-lg border border-passport-green/30 bg-cream/60 px-4 py-2 text-sm text-passport-green"
+              className="rounded-lg border border-passport-green/30 bg-cream/60 px-7 py-3.5 text-sm font-medium text-passport-green"
             >
               {photoFile ? t(content.form.photoChange) : t(content.form.photoChoose)}
             </button>
