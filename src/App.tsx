@@ -1,21 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PassportCover } from './components/PassportCover';
-import { PassportPages } from './components/PassportPages';
+import { FlipBook } from './components/FlipBook';
 import { IntroSection } from './components/IntroSection';
 import { RSVPForm } from './components/RSVPForm';
 import { Completion } from './components/Completion';
 import { LanguageToggle } from './components/LanguageToggle';
 
+type Stage = 'book' | 'form' | 'done';
+
 function App() {
-  const [opened, setOpened] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [stage, setStage] = useState<Stage>('book');
   const [guestName, setGuestName] = useState('');
 
-  const handleSubmitted = (name: string) => {
-    setGuestName(name);
-    setSubmitted(true);
-  };
+  // Scroll to the top whenever the stage changes so each stage starts fresh.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [stage]);
 
   return (
     <div className="relative min-h-svh overflow-x-clip">
@@ -29,21 +29,27 @@ function App() {
       <LanguageToggle />
 
       <AnimatePresence mode="wait">
-        {!opened && <PassportCover key="cover" onOpen={() => setOpened(true)} />}
+        {stage === 'book' && <FlipBook key="book" onFinish={() => setStage('form')} />}
 
-        {opened && submitted && <Completion key="done" name={guestName} />}
-
-        {opened && !submitted && (
+        {stage === 'form' && (
           <motion.div
-            key="flow"
-            exit={{ opacity: 0, transition: { duration: 0.35 } }}
+            key="form"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.3 } }}
             className="pb-20"
           >
-            <PassportPages />
             <IntroSection />
-            <RSVPForm onSubmitted={handleSubmitted} />
+            <RSVPForm
+              onSubmitted={(name) => {
+                setGuestName(name);
+                setStage('done');
+              }}
+            />
           </motion.div>
         )}
+
+        {stage === 'done' && <Completion key="done" name={guestName} />}
       </AnimatePresence>
     </div>
   );

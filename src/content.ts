@@ -32,6 +32,11 @@ export const content = {
     toEn: 'EN',
   },
 
+  flipbook: {
+    next: { zh: '下一頁 ›', en: 'Next ›' } as Bi,
+    toForm: { zh: '填寫回覆 ›', en: 'RSVP ›' } as Bi,
+  },
+
   eventFields: {
     date: { zh: '日期', en: 'Date' } as Bi,
     time: { zh: '登機時間', en: 'Boarding Time' } as Bi,
