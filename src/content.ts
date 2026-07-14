@@ -64,10 +64,6 @@ export const content = {
       location: { zh: '地點待訂', en: 'Venue TBD' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
       time: { zh: '17:00', en: '5:00 PM' } as Bi,
-      description: {
-        zh: '和大家多聚聚、聊聊天',
-        en: 'A relaxed gathering to catch up and chat together',
-      } as Bi,
     },
   },
 

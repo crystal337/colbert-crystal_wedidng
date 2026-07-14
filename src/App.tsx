@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { PassportCover } from './components/PassportCover';
 import { PassportPages } from './components/PassportPages';
 import { IntroSection } from './components/IntroSection';
 import { RSVPForm } from './components/RSVPForm';
-import { BoardingPass } from './components/BoardingPass';
-import { ThankYou } from './components/ThankYou';
+import { Completion } from './components/Completion';
 import { LanguageToggle } from './components/LanguageToggle';
 
 function App() {
@@ -19,7 +18,7 @@ function App() {
   };
 
   return (
-    <div className="relative min-h-svh overflow-x-hidden">
+    <div className="relative min-h-svh overflow-x-clip">
       {/* soft decorative background */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-blush/40 blur-3xl" />
@@ -31,24 +30,21 @@ function App() {
 
       <AnimatePresence mode="wait">
         {!opened && <PassportCover key="cover" onOpen={() => setOpened(true)} />}
-      </AnimatePresence>
 
-      {opened && (
-        <div className="pb-20">
-          <PassportPages />
-          <IntroSection />
-          <AnimatePresence mode="wait">
-            {submitted ? (
-              <div key="pass">
-                <BoardingPass name={guestName} />
-                <ThankYou />
-              </div>
-            ) : (
-              <RSVPForm key="form" onSubmitted={handleSubmitted} />
-            )}
-          </AnimatePresence>
-        </div>
-      )}
+        {opened && submitted && <Completion key="done" name={guestName} />}
+
+        {opened && !submitted && (
+          <motion.div
+            key="flow"
+            exit={{ opacity: 0, transition: { duration: 0.35 } }}
+            className="pb-20"
+          >
+            <PassportPages />
+            <IntroSection />
+            <RSVPForm onSubmitted={handleSubmitted} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

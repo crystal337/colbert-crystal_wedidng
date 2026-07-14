@@ -312,17 +312,18 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           <label htmlFor="rsvp-veg" className="block text-sm font-medium text-ink">
             {t(content.form.vegetarianCount)}
           </label>
-          <input
+          <select
             id="rsvp-veg"
-            type="number"
-            min={0}
-            max={guestCount}
             value={vegetarianCount}
-            onChange={(e) =>
-              setVegetarianCount(Math.max(0, Math.min(guestCount, Number(e.target.value) || 0)))
-            }
+            onChange={(e) => setVegetarianCount(Math.max(0, Math.min(guestCount, Number(e.target.value) || 0)))}
             className="mt-2 w-28 rounded-lg border border-passport-green/20 bg-cream/60 px-4 py-2.5 text-ink outline-none focus:border-passport-gold focus:ring-2 focus:ring-passport-gold/30"
-          />
+          >
+            {Array.from({ length: guestCount + 1 }, (_, i) => i).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* photo */}
