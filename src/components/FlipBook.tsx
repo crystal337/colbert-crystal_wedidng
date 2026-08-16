@@ -49,7 +49,14 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       transition={{ duration: 1 }}
       className="flex min-h-svh w-full flex-col items-center justify-center px-4 py-4"
     >
-      <div className="mx-auto w-[min(20rem,52svh)] sm:w-[min(26rem,54svh)] lg:w-[min(32rem,56svh)]" style={{ perspective: 1800 }}>
+      <div
+        className={`mx-auto ${
+          isCover
+            ? 'w-full max-w-[21rem] sm:max-w-md lg:max-w-lg'
+            : 'w-[min(20rem,52svh)] sm:w-[min(26rem,54svh)] lg:w-[min(32rem,56svh)]'
+        }`}
+        style={{ perspective: 1800 }}
+      >
         <div className="relative">
         <div
           className="relative aspect-[5/7] touch-pan-y"
