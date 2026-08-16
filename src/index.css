@@ -15,10 +15,11 @@
   --color-blush-dark: #e7a3a8;
   --color-ink: #3a2e22;
 
-  --font-serif-zh: "Noto Serif TC", serif;
-  --font-serif-en: "Cormorant Garamond", serif;
-  --font-body-zh: "Noto Sans TC", sans-serif;
-  --font-body-en: "Quicksand", sans-serif;
+  /* All text uses the boarding-pass sans-serif look (Quicksand + Noto Sans TC). */
+  --font-serif-zh: "Quicksand", "Noto Sans TC", sans-serif;
+  --font-serif-en: "Quicksand", "Noto Sans TC", sans-serif;
+  --font-body-zh: "Quicksand", "Noto Sans TC", sans-serif;
+  --font-body-en: "Quicksand", "Noto Sans TC", sans-serif;
 
   --animate-fade-in: fade-in 1s ease-out forwards;
   --animate-fade-in-slow: fade-in 1.6s ease-out forwards;
