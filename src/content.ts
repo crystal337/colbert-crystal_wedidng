@@ -185,6 +185,7 @@ export const content = {
     } as Bi,
     line: { zh: '加入 LINE 群組', en: 'Join on LINE' } as Bi,
     whatsapp: { zh: '加入 WhatsApp 群組', en: 'Join on WhatsApp' } as Bi,
-    calendar: { zh: '將活動加入 Google 日曆', en: 'Add to Google Calendar' } as Bi,
+    calendar: { zh: '加入 Google 日曆', en: 'Add to Google Calendar' } as Bi,
+    appleCalendar: { zh: '加入 Apple 行事曆', en: 'Add to Apple Calendar' } as Bi,
   },
 };
