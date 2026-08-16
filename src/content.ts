@@ -14,10 +14,12 @@ export const content = {
     openButton: 'Open',
   },
 
-  // Three inner "passport" story pages (image + caption). Follow the toggle.
+  // The inner "passport" story pages (image + caption). Follow the toggle.
   story: [
     { zh: '我們因留港讀書相識、相知', en: 'We met and grew close while studying in Hong Kong' } as Bi,
     { zh: '在不斷的遠距離中相守', en: 'Through years of long distance, we stayed devoted to each other' } as Bi,
+    { zh: '從澳洲', en: 'From Australia' } as Bi,
+    { zh: '到新加坡，再回到香港', en: 'to Singapore, and back to Hong Kong' } as Bi,
     { zh: '如今，我們要結婚啦！', en: 'And now — we’re getting married!' } as Bi,
   ] as Bi[],
 

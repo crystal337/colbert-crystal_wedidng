@@ -3,14 +3,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { content } from '../content';
 import { useLang } from '../i18n';
 import couplePng from '../assets/couple.png';
-import studyImg from '../assets/study.jpg';
-import togetherImg from '../assets/together.jpg';
+import story1 from '../assets/story1.jpg';
+import story2 from '../assets/story2.jpg';
+import story3 from '../assets/story3.jpg';
+import story4 from '../assets/story4.jpg';
 import balloonsImg from '../assets/met.jpg';
 
-const storyImages = [studyImg, togetherImg, balloonsImg];
+const storyImages = [story1, story2, story3, story4, balloonsImg];
 
-// Deck: page 0 is the cover, pages 1..4 are the four story pages.
-const PAGE_COUNT = 1 + 4;
+// Deck: page 0 is the cover, pages 1..5 are the story pages, last page is the invite.
+const PAGE_COUNT = 1 + storyImages.length + 1;
 
 const variants = {
   enter: (dir: number) => ({ opacity: 0, rotateY: dir >= 0 ? 20 : -20 }),
@@ -134,7 +136,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                   <div className="relative flex h-full w-full flex-col overflow-hidden rounded-xl bg-cream">
                     <div className="pointer-events-none absolute inset-2 z-10 rounded-lg border border-dashed border-passport-green/20" />
                     <span className="font-body-en absolute top-3 right-4 z-20 text-[0.6rem] tracking-[0.25em] text-passport-green/40">
-                      {String(index).padStart(2, '0')} / 04
+                      {String(index).padStart(2, '0')} / {String(PAGE_COUNT - 1).padStart(2, '0')}
                     </span>
                     <div className="flex min-h-0 flex-1 items-center justify-center p-4 pt-6">
                       <img src={storyImages[storyIndex]} alt="" className="max-h-full max-w-full object-contain" />
