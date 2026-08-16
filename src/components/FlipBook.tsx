@@ -54,7 +54,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       <div
         className={`mx-auto ${
           isCover
-            ? 'w-full max-w-[21rem] sm:max-w-md lg:max-w-lg'
+            ? 'w-[min(20rem,60svh)] sm:w-[min(26rem,60svh)] lg:w-[min(32rem,60svh)]'
             : 'w-[min(20rem,52svh)] sm:w-[min(26rem,54svh)] lg:w-[min(32rem,56svh)]'
         }`}
         style={{ perspective: 1800 }}
