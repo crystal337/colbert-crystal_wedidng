@@ -5,10 +5,13 @@ import { IntroSection } from './components/IntroSection';
 import { RSVPForm } from './components/RSVPForm';
 import { Completion } from './components/Completion';
 import { LanguageToggle } from './components/LanguageToggle';
+import { content } from './content';
+import { useLang } from './i18n';
 
 type Stage = 'book' | 'form' | 'done';
 
 function App() {
+  const { t } = useLang();
   const [stage, setStage] = useState<Stage>('book');
   const [guestName, setGuestName] = useState('');
 
@@ -39,6 +42,15 @@ function App() {
             exit={{ opacity: 0, transition: { duration: 0.3 } }}
             className="pb-20"
           >
+            <div className="mx-auto w-full max-w-2xl px-4 pt-6 lg:max-w-4xl">
+              <button
+                type="button"
+                onClick={() => setStage('book')}
+                className="text-sm font-medium text-passport-green/70 transition-colors hover:text-passport-green"
+              >
+                {t(content.flipbook.backToPassport)}
+              </button>
+            </div>
             <IntroSection />
             <RSVPForm
               onSubmitted={(name) => {

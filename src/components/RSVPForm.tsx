@@ -56,6 +56,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
   const [vegetarianCount, setVegetarianCount] = useState(0);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,11 +90,21 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
     });
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
+  const setPhoto = (file: File | null) => {
     setPhotoFile(file);
     if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhotoPreview(file ? URL.createObjectURL(file) : null);
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhoto(e.target.files?.[0] ?? null);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) setPhoto(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -370,21 +381,34 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           <span className="block text-sm font-medium text-ink">{t(content.form.photo)}</span>
           <p className="mt-1 text-xs text-ink/50">{t(content.form.photoHint)}</p>
 
-          <div className="mt-3 flex items-center gap-4">
-            {photoPreview && (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            className={`mt-3 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-8 text-center transition-colors ${
+              dragging
+                ? 'border-passport-gold bg-passport-gold/10'
+                : 'border-passport-green/25 bg-cream/50 hover:border-passport-gold/60'
+            }`}
+          >
+            {photoPreview ? (
               <img
                 src={photoPreview}
                 alt="Preview"
-                className="h-20 w-20 rounded-lg border border-passport-gold/40 object-cover"
+                className="h-28 w-28 rounded-lg border border-passport-gold/40 object-cover"
               />
+            ) : (
+              <svg viewBox="0 0 24 24" className="h-9 w-9 text-passport-green/40" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M12 15V4M8 8l4-4 4 4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             )}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="rounded-lg border border-passport-green/30 bg-cream/60 px-7 py-3.5 text-sm font-medium text-passport-green"
-            >
-              {photoFile ? t(content.form.photoChange) : t(content.form.photoChoose)}
-            </button>
+            <span className="text-sm font-medium text-passport-green">
+              {photoFile ? t(content.form.photoChange) : t(content.form.photoDropHint)}
+            </span>
             <input
               ref={fileInputRef}
               type="file"

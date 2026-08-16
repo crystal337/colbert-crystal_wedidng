@@ -47,9 +47,10 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.3 } }}
       transition={{ duration: 1 }}
-      className="flex min-h-svh w-full flex-col items-center justify-center px-6 py-8"
+      className="flex min-h-svh w-full flex-col items-center justify-center px-4 py-4"
     >
-      <div className="w-full max-w-[21rem] sm:max-w-md lg:max-w-lg" style={{ perspective: 1800 }}>
+      <div className="mx-auto w-[min(20rem,52svh)] sm:w-[min(26rem,54svh)] lg:w-[min(32rem,56svh)]" style={{ perspective: 1800 }}>
+        <div className="relative">
         <div
           className="relative aspect-[5/7] touch-pan-y"
           style={{ transformStyle: 'preserve-3d' }}
@@ -144,20 +145,34 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
               )}
             </motion.div>
           </AnimatePresence>
+          </div>
+
+          {/* side navigation arrows — hidden on the cover (which uses Open) */}
+          {!isCover && (
+            <>
+              <button
+                type="button"
+                onClick={() => paginate(-1)}
+                aria-label="Previous"
+                className="absolute left-1 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-passport-green/15 bg-cream/85 text-xl text-passport-green shadow-md backdrop-blur sm:-left-3 lg:-left-5"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => paginate(1)}
+                aria-label={isInvite ? t(content.flipbook.toForm) : t(content.flipbook.next)}
+                className="absolute right-1 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-passport-green/15 bg-cream/85 text-xl text-passport-green shadow-md backdrop-blur sm:-right-3 lg:-right-5"
+              >
+                ›
+              </button>
+            </>
+          )}
         </div>
 
-        {/* controls — hidden on the cover, which advances via its Open button */}
+        {/* progress dots (kept close under the page) + last-page RSVP entry */}
         {!isCover && (
-          <div className="mt-6 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => paginate(-1)}
-              aria-label="Previous"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-passport-green/30 text-lg text-passport-green"
-            >
-              ‹
-            </button>
-
+          <div className="mt-3 flex flex-col items-center gap-3">
             <div className="flex gap-2">
               {Array.from({ length: PAGE_COUNT - 1 }).map((_, i) => (
                 <span
@@ -168,14 +183,15 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                 />
               ))}
             </div>
-
-            <button
-              type="button"
-              onClick={() => paginate(1)}
-              className="flex h-10 items-center justify-center rounded-full bg-passport-green px-5 text-sm font-medium text-cover-gold shadow-md"
-            >
-              {isInvite ? t(content.flipbook.toForm) : t(content.flipbook.next)}
-            </button>
+            {isInvite && (
+              <button
+                type="button"
+                onClick={() => paginate(1)}
+                className="rounded-full bg-passport-green px-6 py-2 text-sm font-medium text-cover-gold shadow-md"
+              >
+                {t(content.flipbook.toForm)}
+              </button>
+            )}
           </div>
         )}
       </div>

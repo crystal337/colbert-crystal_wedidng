@@ -43,6 +43,7 @@ export const content = {
   flipbook: {
     next: { zh: '下一頁 ›', en: 'Next ›' } as Bi,
     toForm: { zh: '填寫回覆 ›', en: 'RSVP ›' } as Bi,
+    backToPassport: { zh: '‹ 回到護照', en: '‹ Back to passport' } as Bi,
   },
 
   eventsHeading: { zh: '活動資訊', en: 'Event Details' } as Bi,
@@ -78,7 +79,7 @@ export const content = {
       name: { zh: '{宴後小聚} 愛河邊的微醺時光', en: '{After-Party} Tipsy Hours by the Love River' } as Bi,
       location: { zh: '地點待訂', en: 'Venue TBD' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
-      time: { zh: '17:00', en: '5:00 PM' } as Bi,
+      time: { zh: '17:00（待訂）', en: '5:00 PM (TBD)' } as Bi,
       description: {
         zh: '婚禮後，如果你有興致留下來，也希望邀請你們與我們一起聊聊天，在河邊放鬆一下。',
         en: 'After the wedding, if you feel like staying, we’d love for you to hang out, chat, and unwind with us by the river.',
@@ -106,12 +107,12 @@ export const content = {
     relationshipHint: { zh: '可複選', en: 'Select all that apply' } as Bi,
 
     guestCount: { zh: '乘客人數', en: 'Number of Passengers' } as Bi,
-    companions: { zh: '同行賓客姓名', en: 'Accompanying Guests' } as Bi,
+    companions: { zh: '同行賓客', en: 'Accompanying Guests' } as Bi,
     companionsHint: {
-      zh: '請填寫其他同行者的姓名',
-      en: 'Names of the other guests joining you',
+      zh: '選填',
+      en: 'Optional',
     } as Bi,
-    companionPlaceholder: { zh: '姓名', en: 'Name' } as Bi,
+    companionPlaceholder: { zh: '同行賓客', en: 'Guest' } as Bi,
 
     attending: { zh: '參加活動', en: 'Attending' } as Bi,
     attendingHint: {
@@ -136,6 +137,7 @@ export const content = {
     } as Bi,
     photoChoose: { zh: '選擇照片', en: 'Choose Photo' } as Bi,
     photoChange: { zh: '更換照片', en: 'Change Photo' } as Bi,
+    photoDropHint: { zh: '點擊選擇，或將照片拖曳到這裡', en: 'Click to choose, or drag a photo here' } as Bi,
     submit: { zh: '送出', en: 'Submit' } as Bi,
     submitting: { zh: '送出中…', en: 'Submitting…' } as Bi,
     errorRequired: { zh: '請填寫姓名並選擇至少一項活動', en: 'Please enter your name and select at least one event' } as Bi,
