@@ -92,10 +92,10 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                   <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_30%_15%,rgba(232,207,156,0.15),transparent_55%)]" />
                   <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/30" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center">
-                    <h1 className="font-serif-en text-3xl font-semibold tracking-[0.3em] sm:text-4xl lg:text-5xl">
+                    <h1 className="font-serif-en text-center text-[clamp(1.5rem,5svh,2.5rem)] font-semibold tracking-[0.2em] [text-indent:0.2em]">
                       {content.cover.passportWord}
                     </h1>
-                    <p className="font-serif-en mt-2 text-base italic opacity-85 sm:text-lg lg:text-xl">
+                    <p className="font-serif-en mt-2 text-[clamp(0.8rem,2.4svh,1.15rem)] italic opacity-85">
                       {content.cover.line}
                     </p>
                     <div className="flex w-full min-h-0 flex-1 items-center justify-center py-2">
@@ -124,7 +124,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                   <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/25" />
                   <div className="relative z-10 space-y-5">
                     {content.invite.map((para, i) => (
-                      <p key={i} className={`${serif} text-base leading-relaxed sm:text-lg lg:text-xl`}>
+                      <p key={i} className={`${serif} text-[clamp(0.8rem,2.5svh,1.05rem)] leading-relaxed`}>
                         {t(para)}
                       </p>
                     ))}
