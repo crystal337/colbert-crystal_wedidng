@@ -186,7 +186,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 rounded-2xl border border-passport-gold/40 bg-white/70 p-6 shadow-sm backdrop-blur-sm sm:p-8"
+        className="space-y-6 rounded-2xl border border-cover-gold/40 bg-white/70 p-6 shadow-[0_14px_34px_-18px_rgba(10,36,25,0.28)] backdrop-blur-sm sm:p-8"
       >
         {/* name */}
         <div>

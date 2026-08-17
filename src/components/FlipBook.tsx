@@ -92,17 +92,17 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                   <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_30%_15%,rgba(232,207,156,0.15),transparent_55%)]" />
                   <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/30" />
                   <div className="relative z-10 flex h-full w-full flex-col items-center">
-                    <h1 className="font-serif-en text-center text-[clamp(1.5rem,5svh,2.5rem)] font-semibold tracking-[0.2em] [text-indent:0.2em]">
+                    <h1 className="font-passport text-center text-[clamp(1.4rem,4.6svh,2.35rem)] font-semibold tracking-[0.18em] [text-indent:0.18em]">
                       {content.cover.passportWord}
                     </h1>
-                    <p className="mt-2 text-[clamp(0.72rem,2.1svh,1rem)] font-medium tracking-[0.12em] text-cover-gold/85">
+                    <p className="font-passport-serif mt-2 text-[clamp(0.9rem,2.6svh,1.3rem)] tracking-[0.06em] text-cover-gold/90 italic">
                       {content.cover.line}
                     </p>
                     <div className="flex w-full min-h-0 flex-1 items-center justify-center py-2">
                       <img src={couplePng} alt="Crystal & Colbert" className="max-h-full w-auto object-contain" />
                     </div>
                     <span className="h-px w-10 bg-cover-gold/60" />
-                    <p className="font-body-en mt-2 mb-2 text-xs tracking-[0.3em] sm:text-sm">
+                    <p className="font-passport-serif mt-2 mb-2 text-sm font-medium tracking-[0.35em] sm:text-base">
                       {content.cover.date}
                     </p>
                     <motion.button
@@ -112,7 +112,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.7, delay: 1.6, ease: 'easeOut' }}
                       whileTap={{ scale: 0.95 }}
-                      className="font-serif-en rounded-full bg-cover-gold px-9 py-1.5 text-base font-semibold tracking-wide text-passport-green shadow-lg shadow-cover-gold/30"
+                      className="font-passport-serif rounded-full bg-cover-gold px-10 py-1.5 text-lg font-semibold tracking-[0.15em] text-passport-green shadow-lg shadow-cover-gold/30"
                     >
                       {content.cover.openButton}
                     </motion.button>
@@ -135,9 +135,11 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                 <div className="h-full w-full rounded-2xl bg-passport-green p-2.5 shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:p-3">
                   <div className="relative flex h-full w-full flex-col overflow-hidden rounded-xl bg-cream">
                     <div className="pointer-events-none absolute inset-2 z-10 rounded-lg border border-dashed border-passport-green/20" />
-                    <span className="font-body-en absolute top-3 right-4 z-20 text-[0.6rem] tracking-[0.25em] text-passport-green/40">
-                      {String(index).padStart(2, '0')} / {String(PAGE_COUNT - 1).padStart(2, '0')}
-                    </span>
+                    <div className="absolute top-3 right-3 z-20 -rotate-6 rounded border border-cover-gold/50 px-1.5 py-[1px]">
+                      <span className="font-passport-serif text-[0.62rem] font-semibold tracking-[0.12em] text-cover-gold">
+                        {String(index).padStart(2, '0')} / {String(PAGE_COUNT - 1).padStart(2, '0')}
+                      </span>
+                    </div>
                     <div className="flex min-h-0 flex-1 items-center justify-center p-5 pt-7">
                       <img
                         src={storyImages[storyIndex]}

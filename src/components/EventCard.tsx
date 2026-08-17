@@ -22,8 +22,8 @@ export function EventCard({
   const fields = content.eventFields;
 
   return (
-    <div className="relative flex-1 rounded-2xl border border-passport-gold/40 bg-white/70 p-5 shadow-sm backdrop-blur-sm sm:p-6">
-      <span className="font-body-en inline-block rounded-full bg-blush px-3 py-1 text-[0.65rem] font-semibold tracking-[0.15em] text-ink/70 uppercase">
+    <div className="relative flex-1 rounded-2xl border border-cover-gold/40 bg-white/70 p-5 shadow-[0_14px_34px_-18px_rgba(10,36,25,0.28)] backdrop-blur-sm sm:p-6">
+      <span className="inline-block rounded-full border border-cover-gold/50 bg-cover-gold/10 px-3 py-1 text-[0.65rem] font-semibold tracking-[0.15em] text-passport-green uppercase">
         {t(badge)}
       </span>
 

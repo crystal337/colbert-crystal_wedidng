@@ -9,6 +9,10 @@
   --color-passport-gold-light: #e8cf9c;
   --color-cover-gold: #ddb54b;
 
+  /* elegant "official document" fonts, used only on the passport cover */
+  --font-passport: "Cinzel", serif;
+  --font-passport-serif: "Cormorant Garamond", serif;
+
   --color-cream: #fdf6ea;
   --color-cream-dark: #f3e6cd;
   --color-blush: #f3c9c9;
@@ -73,6 +77,12 @@ body {
 }
 .font-body-en {
   font-family: var(--font-body-en);
+}
+.font-passport {
+  font-family: var(--font-passport);
+}
+.font-passport-serif {
+  font-family: var(--font-passport-serif);
 }
 
 /* soft scrollbar for a gentler feel */
