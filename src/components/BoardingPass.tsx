@@ -27,9 +27,9 @@ function Barcode({ seed }: { seed: string }) {
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value, className = '' }: { label: string; value: string; className?: string }) {
   return (
-    <div>
+    <div className={className}>
       <div className="font-body-en text-[0.55rem] tracking-[0.15em] text-passport-green/50 uppercase">
         {label}
       </div>
@@ -100,7 +100,7 @@ export function BoardingPass({ name }: { name: string }) {
             <Field label={bp.labels.flight} value={bp.flight} />
             <Field label={bp.labels.date} value={bp.date} />
             <Field label={bp.labels.boarding} value={bp.boardingTime} />
-            <Field label={bp.labels.gate} value={t(bp.gate)} />
+            <Field label={bp.labels.gate} value={t(bp.gate)} className="col-span-2" />
             <Field label={bp.labels.seat} value={t(bp.seat)} />
           </div>
 

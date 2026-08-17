@@ -120,7 +120,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                 </div>
               ) : isInvite ? (
                 /* ---------- INVITATION — the passport's back cover ---------- */
-                <div className="relative flex h-full w-full flex-col items-start justify-center rounded-2xl border border-cover-gold/40 bg-passport-green px-8 text-left text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-11">
+                <div className="relative flex h-full w-full flex-col items-start justify-center rounded-2xl border border-cover-gold/40 bg-passport-green px-12 text-left text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-14">
                   <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/25" />
                   <div className="relative z-10 w-full space-y-4">
                     {content.invite.map((para, i) => (

@@ -29,7 +29,7 @@ export const content = {
       en: 'The distance from Australia to Hong Kong.',
     } as Bi,
     {
-      zh: '到新加坡到香港，再一起攜手從星回港',
+      zh: '到新加坡和香港的距離，去年再一起攜手從星回港',
       en: 'To Singapore, then hand in hand back to Hong Kong together.',
     } as Bi,
     {
@@ -106,7 +106,7 @@ export const content = {
 
   form: {
     heading: { zh: '賓客回覆', en: 'RSVP' } as Bi,
-    deadline: { zh: '請於 8 月 31 日前回覆', en: 'Please reply by August 31' } as Bi,
+    deadline: { zh: '請於 9 月 30 日前回覆', en: 'Please reply by September 30' } as Bi,
     name: { zh: '姓名', en: 'Name' } as Bi,
     namePlaceholder: { zh: '請輸入你的姓名', en: 'Your name' } as Bi,
 
@@ -177,7 +177,7 @@ export const content = {
     flight: 'CC 0123',
     date: '23 JAN 2027',
     boardingTime: '12:00',
-    gate: { zh: '4 樓 芳苑廳', en: '4F Fang Yuan Hall' } as Bi,
+    gate: { zh: '高雄洲際酒店 4 樓 芳苑廳', en: '4F Fang Yuan Hall' } as Bi,
     seat: { zh: '待定', en: 'TBC' } as Bi,
     passengerLabel: 'PASSENGER',
     fallbackName: { zh: '貴賓', en: 'Guest' } as Bi,
@@ -192,6 +192,11 @@ export const content = {
       gate: 'GATE',
       seat: 'SEAT',
     },
+  },
+
+  gallery: {
+    heading: { zh: '婚紗照搶先看', en: 'Sneak Peek' } as Bi,
+    hint: { zh: '← 向左滑動看更多', en: '← Swipe to see more' } as Bi,
   },
 
   thankYou: {
