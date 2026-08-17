@@ -178,9 +178,10 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
       className="mx-auto w-full max-w-xl px-4 py-10"
     >
       {/* heading + deadline, outside the form card */}
-      <div className="mb-6 text-center">
-        <BiText text={content.form.heading} as="h2" className="text-2xl font-semibold text-passport-green" />
-        <p className="mt-2 text-sm text-passport-green/70">{t(content.form.deadline)}</p>
+      <div className="mb-6 flex flex-col items-center gap-2 text-center">
+        <BiText text={content.form.heading} as="h2" className="text-2xl font-bold tracking-[0.1em] text-passport-green" />
+        <span className="h-px w-10 bg-cover-gold/60" />
+        <p className="text-sm text-passport-green/70">{t(content.form.deadline)}</p>
       </div>
 
       <form

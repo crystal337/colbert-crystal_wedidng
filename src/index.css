@@ -4,9 +4,9 @@
   /* passport / brand palette */
   --color-passport-green: #123526;
   --color-passport-green-dark: #0a2419;
-  --color-passport-gold: #cda45e;
+  /* one unified gold across the whole site (matches the cover line-art) */
+  --color-passport-gold: #ddb54b;
   --color-passport-gold-light: #e8cf9c;
-  /* matches the gold of the couple line-art on the cover */
   --color-cover-gold: #ddb54b;
 
   --color-cream: #fdf6ea;

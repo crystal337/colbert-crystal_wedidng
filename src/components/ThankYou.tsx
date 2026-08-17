@@ -54,8 +54,9 @@ export function ThankYou() {
         <BiText
           text={content.thankYou.heading}
           as="h2"
-          className="text-2xl font-semibold text-passport-green"
+          className="text-2xl font-bold tracking-[0.1em] text-passport-green"
         />
+        <span className="mx-auto mt-3 block h-px w-10 bg-cover-gold/60" />
 
         <BiText
           text={content.thankYou.paragraph}

@@ -12,11 +12,14 @@ export function IntroSection() {
       transition={{ duration: 0.8, ease: 'easeOut' }}
       className="mx-auto w-full max-w-xl px-4 pt-8 pb-2"
     >
-      <BiText
-        text={content.eventsHeading}
-        as="h2"
-        className="mb-6 text-center text-2xl font-semibold text-passport-green"
-      />
+      <div className="mb-6 flex flex-col items-center gap-2">
+        <BiText
+          text={content.eventsHeading}
+          as="h2"
+          className="text-2xl font-bold tracking-[0.1em] text-passport-green"
+        />
+        <span className="h-px w-10 bg-cover-gold/60" />
+      </div>
 
       <div className="flex flex-col gap-4">
         <EventCard {...content.events.wedding} />

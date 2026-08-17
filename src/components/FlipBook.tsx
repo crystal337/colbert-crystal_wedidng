@@ -95,7 +95,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                     <h1 className="font-serif-en text-center text-[clamp(1.5rem,5svh,2.5rem)] font-semibold tracking-[0.2em] [text-indent:0.2em]">
                       {content.cover.passportWord}
                     </h1>
-                    <p className="font-serif-en mt-2 text-[clamp(0.8rem,2.4svh,1.15rem)] italic opacity-85">
+                    <p className="mt-2 text-[clamp(0.72rem,2.1svh,1rem)] font-medium tracking-[0.12em] text-cover-gold/85">
                       {content.cover.line}
                     </p>
                     <div className="flex w-full min-h-0 flex-1 items-center justify-center py-2">
@@ -138,14 +138,19 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                     <span className="font-body-en absolute top-3 right-4 z-20 text-[0.6rem] tracking-[0.25em] text-passport-green/40">
                       {String(index).padStart(2, '0')} / {String(PAGE_COUNT - 1).padStart(2, '0')}
                     </span>
-                    <div className="flex min-h-0 flex-1 items-center justify-center p-4 pt-6">
-                      <img src={storyImages[storyIndex]} alt="" className="max-h-full max-w-full object-contain" />
+                    <div className="flex min-h-0 flex-1 items-center justify-center p-5 pt-7">
+                      <img
+                        src={storyImages[storyIndex]}
+                        alt=""
+                        className="max-h-full max-w-full rounded-[3px] border-[6px] border-white shadow-[0_10px_24px_-10px_rgba(10,36,25,0.4)]"
+                      />
                     </div>
                     <div className="flex flex-col items-center gap-2 px-6 pb-8 text-center">
-                      <span className="font-body-en text-[0.6rem] tracking-[0.2em] text-passport-green/50 uppercase">
+                      <span className="text-[0.6rem] font-semibold tracking-[0.3em] text-cover-gold uppercase">
                         Chapter {String(index).padStart(2, '0')}
                       </span>
-                      <p className={`${serif} text-lg leading-relaxed text-ink sm:text-xl`}>
+                      <span className="h-px w-6 bg-cover-gold/50" />
+                      <p className={`${serif} text-lg leading-relaxed font-medium text-ink sm:text-xl`}>
                         {t(content.story[storyIndex])}
                       </p>
                     </div>
