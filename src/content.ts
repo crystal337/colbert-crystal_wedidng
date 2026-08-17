@@ -17,20 +17,20 @@ export const content = {
   // The inner "passport" story pages (image + caption). Follow the toggle.
   story: [
     {
-      zh: '我們因留港讀書相識、相知',
+      zh: '這趟旅程的開始 — 我們因留港讀書相識和相知',
       en: 'Where our flight path began — meeting and falling in love while studying in Hong Kong.',
     } as Bi,
     {
-      zh: '在不斷的遠距離中相守',
+      zh: '相處的一半時間，在遠距離中相守',
       en: 'Navigating the long-haul — years of distance across time zones only brought us closer.',
     } as Bi,
     {
-      zh: '從香港到澳洲的距離',
-      en: 'The distance from Hong Kong to Australia.',
+      zh: '從澳洲到香港的距離',
+      en: 'The distance from Australia to Hong Kong.',
     } as Bi,
     {
-      zh: '從香港到新加坡，再一起從新加坡回港',
-      en: 'From Hong Kong to Singapore, then back to Hong Kong together.',
+      zh: '到新加坡到香港，再一起攜手從星回港',
+      en: 'To Singapore, then hand in hand back to Hong Kong together.',
     } as Bi,
     {
       zh: '如今，我們要結婚啦！',
@@ -42,12 +42,12 @@ export const content = {
   // its own paragraph (separated by a blank line).
   invite: [
     {
-      zh: '謝謝你一路上參與我們的旅程。當我們準備迎接人生最重要的一次起飛，誠摯地邀請你一同登機。',
-      en: 'Thank you for being part of our journey. As we prepare for our biggest takeoff yet, we would love to have you on board.',
+      zh: '謝謝你/妳參與我們的人生，或見證我們的旅程，因此我們滿心期待且誠摯的想邀請你，一起見證這個日子。',
+      en: 'Thank you for being part of our lives and witnessing our journey — with full hearts, we sincerely invite you to celebrate this day with us.',
     } as Bi,
     {
-      zh: '請透過下方的 RSVP，確認你的座位與旅程資訊。',
-      en: 'Please confirm your seat and travel details using the RSVP below.',
+      zh: '請在下面表單，填寫你的旅客資料，準備帶著機票前往這趟婚禮旅程吧～',
+      en: 'Please fill in your passenger details in the form below, and get ready to board this wedding journey with your ticket ~',
     } as Bi,
   ] as Bi[],
 
@@ -87,9 +87,9 @@ export const content = {
     wedding: {
       badge: { zh: '主要目的地', en: 'Main Destination' } as Bi,
       name: { zh: "Colbert & Crystal's 婚禮午宴", en: "Colbert & Crystal's Wedding Luncheon" } as Bi,
-      location: { zh: '高雄洲際酒店 芳苑廳', en: 'InterContinental Kaohsiung, Fang Yuan Hall' } as Bi,
+      location: { zh: '高雄洲際酒店 4 樓 芳苑廳', en: 'InterContinental Kaohsiung 4F, Fang Yuan Hall' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
-      time: { zh: '11:30', en: '11:30 AM' } as Bi,
+      time: { zh: '12:00 入場・12:30 開始', en: '12:00 onboard · 12:30 takeoff' } as Bi,
     },
     afterParty: {
       badge: { zh: '連接航班（可選）', en: 'Connecting Flight (Optional)' } as Bi,
@@ -176,8 +176,8 @@ export const content = {
     toCity: { zh: '婚禮', en: 'The Wedding' } as Bi,
     flight: 'CC 0123',
     date: '23 JAN 2027',
-    boardingTime: '11:30',
-    gate: { zh: '高雄洲際酒店 4F', en: 'InterContinental Kaohsiung 4F' } as Bi,
+    boardingTime: '12:00',
+    gate: { zh: '4 樓 芳苑廳', en: '4F Fang Yuan Hall' } as Bi,
     seat: { zh: '待定', en: 'TBC' } as Bi,
     passengerLabel: 'PASSENGER',
     fallbackName: { zh: '貴賓', en: 'Guest' } as Bi,

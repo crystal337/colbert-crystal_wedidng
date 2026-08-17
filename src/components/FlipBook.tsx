@@ -54,8 +54,8 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       <div
         className={`mx-auto ${
           isCover
-            ? 'w-[min(20rem,60svh)] sm:w-[min(26rem,60svh)] lg:w-[min(32rem,60svh)]'
-            : 'w-[min(20rem,52svh)] sm:w-[min(26rem,54svh)] lg:w-[min(32rem,56svh)]'
+            ? 'w-[min(92vw,62svh)] sm:w-[min(26rem,60svh)] lg:w-[min(32rem,60svh)]'
+            : 'w-[min(90vw,54svh)] sm:w-[min(26rem,54svh)] lg:w-[min(32rem,56svh)]'
         }`}
         style={{ perspective: 1800 }}
       >
@@ -120,11 +120,11 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                 </div>
               ) : isInvite ? (
                 /* ---------- INVITATION — the passport's back cover ---------- */
-                <div className="relative flex h-full w-full flex-col items-center justify-center rounded-2xl border border-cover-gold/40 bg-passport-green px-9 text-center text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-12">
+                <div className="relative flex h-full w-full flex-col items-start justify-center rounded-2xl border border-cover-gold/40 bg-passport-green px-8 text-left text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-11">
                   <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/25" />
-                  <div className="relative z-10 space-y-5">
+                  <div className="relative z-10 w-full space-y-4">
                     {content.invite.map((para, i) => (
-                      <p key={i} className={`${serif} text-[clamp(0.8rem,2.5svh,1.05rem)] leading-relaxed`}>
+                      <p key={i} className={`${serif} text-[clamp(0.82rem,2.5svh,1.05rem)] leading-relaxed`}>
                         {t(para)}
                       </p>
                     ))}
