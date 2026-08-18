@@ -11,6 +11,8 @@ export type RSVPPayload = {
   vegetarianCount: number;
   photoBase64?: string;
   photoFileName?: string;
+  emailSubject?: string;
+  emailHtml?: string;
 };
 
 export async function submitRSVP(payload: RSVPPayload): Promise<void> {

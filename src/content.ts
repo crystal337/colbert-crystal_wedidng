@@ -93,7 +93,7 @@ export const content = {
     },
     afterParty: {
       badge: { zh: '連接航班（可選）', en: 'Connecting Flight (Optional)' } as Bi,
-      name: { zh: '{宴後小聚} 愛河邊的黃金時光', en: '{After-Party} Golden Hour by the Love River' } as Bi,
+      name: { zh: '宴後小聚 | 愛河邊的黃金時光', en: 'After Party | Golden Hour by the Love River' } as Bi,
       location: { zh: '地點待訂', en: 'Venue TBD' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
       time: { zh: '17:00（待訂）', en: '5:00 PM (TBD)' } as Bi,
@@ -177,7 +177,7 @@ export const content = {
     flight: 'CC 0123',
     date: '23 JAN 2027',
     boardingTime: '12:00',
-    gate: { zh: '高雄洲際酒店 4 樓 芳苑廳', en: '4F Fang Yuan Hall' } as Bi,
+    gate: { zh: '高雄洲際酒店 4 樓 芳苑廳', en: 'InterContinental Kaohsiung' } as Bi,
     seat: { zh: '待定', en: 'TBC' } as Bi,
     passengerLabel: 'PASSENGER',
     fallbackName: { zh: '貴賓', en: 'Guest' } as Bi,
@@ -195,8 +195,27 @@ export const content = {
   },
 
   gallery: {
-    heading: { zh: '婚紗照搶先看', en: 'Sneak Peek' } as Bi,
+    heading: { zh: '婚紗照搶先看', en: 'Our Prewedding Photos' } as Bi,
     hint: { zh: '← 向左滑動看更多', en: '← Swipe to see more' } as Bi,
+  },
+
+  // Confirmation email sent to the guest after they submit (built on the
+  // client in the guest's current language, sent via Apps Script).
+  email: {
+    brand: { zh: '從譯 & 芊和婚禮', en: "Colbert & Crystal's Wedding" } as Bi,
+    title: { zh: '我們已經收到你的回覆', en: "We've Received Your Reply" } as Bi,
+    greeting: { zh: '親愛的', en: 'Dear' } as Bi,
+    intro: {
+      zh: '感謝你的填寫，以下是你的出席確認：',
+      en: 'Thank you for your reply — here is your attendance confirmation:',
+    } as Bi,
+    detailsHeading: { zh: '你的回覆', en: 'Your Reply' } as Bi,
+    contact: {
+      zh: '如果有任何需要修改的地方，請聯絡我們。我們期待見到你！',
+      en: 'If anything needs updating, please reach out to us. We look forward to seeing you!',
+    } as Bi,
+    signoff: { zh: '愛你的', en: 'With love,' } as Bi,
+    signature: { zh: '從譯 ＆ 芊和', en: 'Colbert & Crystal' } as Bi,
   },
 
   thankYou: {

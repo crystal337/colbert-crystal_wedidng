@@ -5,6 +5,7 @@ import { BiText } from './BiText';
 import { useLang } from '../i18n';
 import { fileToCompressedBase64 } from '../lib/image';
 import { submitRSVP } from '../lib/submit';
+import { buildConfirmationEmail } from '../lib/email';
 
 type Attending = 'wedding' | 'afterParty';
 type Relationship =
@@ -43,7 +44,7 @@ const relationshipZh: Record<Exclude<Relationship, 'other'>, string> = {
 };
 
 export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void }) {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [relationship, setRelationship] = useState<Set<Relationship>>(new Set());
@@ -144,6 +145,57 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
         v === 'wedding' ? content.form.attendWedding.zh : content.form.attendAfterParty.zh,
       );
 
+      // Build a confirmation email in the guest's current language.
+      const sep = lang === 'zh' ? '、' : ', ';
+      const relLabel = (r: Relationship) =>
+        r === 'other'
+          ? relationshipOther.trim()
+            ? `${t(content.form.relOther)}：${relationshipOther.trim()}`
+            : t(content.form.relOther)
+          : t(relationships.find(([v]) => v === r)![1]);
+      const relDisplay = Array.from(relationship).map(relLabel).join(sep) || '—';
+      const attendDisplay = Array.from(attending)
+        .map((v) => t(v === 'wedding' ? content.form.attendWedding : content.form.attendAfterParty))
+        .join(sep);
+      const childChairDisplay =
+        childChair === 'other'
+          ? `${t(content.form.childChairOther)}：${childChairOther.trim()}`
+          : t(childChair === 'yes' ? content.form.childChairYes : content.form.childChairNo);
+      const companionsDisplay = companions.map((c) => c.trim()).filter(Boolean).join(sep) || '—';
+
+      const evRows = (ev: (typeof content.events)['wedding']): [string, string][] => [
+        [t(content.eventFields.date), t(ev.date)],
+        [t(content.eventFields.time), t(ev.time)],
+        [t(content.eventFields.venue), t(ev.location)],
+      ];
+
+      const emailData = buildConfirmationEmail({
+        brand: t(content.email.brand),
+        title: t(content.email.title),
+        greeting: t(content.email.greeting),
+        name: name.trim(),
+        intro: t(content.email.intro),
+        detailsHeading: t(content.email.detailsHeading),
+        detailRows: [
+          [t(content.form.name), name.trim()],
+          [t(content.form.email), email.trim() || '—'],
+          [t(content.form.relationship), relDisplay],
+          [t(content.form.guestCount), String(guestCount)],
+          [t(content.form.companions), companionsDisplay],
+          [t(content.form.attending), attendDisplay],
+          [t(content.form.childChair), childChairDisplay],
+          [t(content.form.vegetarianCount), String(vegetarianCount)],
+        ],
+        eventsHeading: t(content.eventsHeading),
+        events: [
+          { name: t(content.events.wedding.name), rows: evRows(content.events.wedding) },
+          { name: t(content.events.afterParty.name), rows: evRows(content.events.afterParty) },
+        ],
+        contact: t(content.email.contact),
+        signoff: t(content.email.signoff),
+        signature: t(content.email.signature),
+      });
+
       await submitRSVP({
         name: name.trim(),
         email: email.trim(),
@@ -155,6 +207,8 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
         vegetarianCount,
         photoBase64,
         photoFileName: photoFile?.name,
+        emailSubject: emailData.subject,
+        emailHtml: emailData.html,
       });
 
       onSubmitted(name.trim());

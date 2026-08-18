@@ -40,7 +40,16 @@ function doPost(e) {
     // submission itself — the RSVP is already saved above.
     if (data.email) {
       try {
-        sendConfirmationEmail(data);
+        if (data.emailHtml) {
+          // The site builds the styled, language-matched email; just send it.
+          MailApp.sendEmail({
+            to: data.email,
+            subject: data.emailSubject || 'RSVP Confirmation',
+            htmlBody: data.emailHtml,
+          });
+        } else {
+          sendConfirmationEmail(data); // legacy fallback
+        }
       } catch (mailErr) {
         // swallow; the response below still reports success
       }
