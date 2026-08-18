@@ -55,10 +55,9 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
           "Our" on top, "Wedding" below, stretched edge to edge */}
       <div
         aria-hidden
-        className="font-script pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-cover-gold/25 leading-[0.8]"
+        className="font-script pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-cover-gold/25 leading-none"
       >
-        <span className="text-[30vw]">Our</span>
-        <span className="text-[28vw]">Wedding</span>
+        <span className="rotate-[32deg] whitespace-nowrap text-[17vw]">Colbert &amp; Crystal</span>
       </div>
       <div
         className={`relative z-10 mx-auto ${
