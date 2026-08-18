@@ -55,11 +55,11 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
           "Our" on top, "Wedding" below, stretched edge to edge */}
       <div
         aria-hidden
-        className="font-script pointer-events-none absolute inset-0 z-0 flex flex-col justify-between py-[5svh] text-cover-gold/25 leading-[0.8]"
+        className="font-script pointer-events-none absolute inset-0 z-0 flex flex-col justify-between py-[3svh] text-cover-gold/15 leading-[0.75]"
       >
-        <span className="self-start -ml-[3vw] text-[32vw]">Colbert</span>
-        <span className="self-center text-[20vw] text-cover-gold/30">&amp;</span>
-        <span className="self-end -mr-[3vw] text-[32vw]">Crystal</span>
+        <span className="self-start -ml-[5vw] text-[41vw]">Colbert</span>
+        <span className="self-center text-[24vw] text-cover-gold/20">&amp;</span>
+        <span className="self-end -mr-[5vw] text-[41vw]">Crystal</span>
       </div>
       <div
         className={`relative z-10 mx-auto ${
