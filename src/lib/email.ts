@@ -91,7 +91,7 @@ export function buildConfirmationEmail(input: ConfirmationEmailInput): { subject
     input.events.map(eventCard).join('') +
     `<p style="margin:22px 0 0;color:#6b6b6b;">${esc(input.contact)}</p>` +
     (buttons.length ? `<p style="margin:16px 0 0;">${buttons.join('')}</p>` : '') +
-    `<p style="margin:24px 0 0;">${esc(input.signoff)}<br/><b style="color:${GREEN};">${esc(input.signature)}</b></p>` +
+    `<p style="margin:24px 0 0;">${input.signoff ? `${esc(input.signoff)}<br/>` : ''}<b style="color:${GREEN};">${esc(input.signature)}</b></p>` +
     '</div>' +
     '</div>' +
     '</div>';
