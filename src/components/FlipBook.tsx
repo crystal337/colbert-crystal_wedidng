@@ -49,10 +49,17 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.3 } }}
       transition={{ duration: 1 }}
-      className="flex min-h-svh w-full flex-col items-center justify-center px-4 py-4"
+      className="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden px-4 py-4"
     >
+      {/* flowing gold "Our Wedding" script across the whole page background */}
+      <span
+        aria-hidden
+        className="font-script pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-center leading-none text-cover-gold/20 -rotate-[8deg] text-[clamp(3.5rem,15vw,11rem)]"
+      >
+        Our Wedding
+      </span>
       <div
-        className={`mx-auto ${
+        className={`relative z-10 mx-auto ${
           isCover
             ? 'w-[min(92vw,62svh)] sm:w-[min(26rem,60svh)] lg:w-[min(32rem,60svh)]'
             : 'w-[min(90vw,54svh)] sm:w-[min(26rem,54svh)] lg:w-[min(32rem,56svh)]'
@@ -120,15 +127,8 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                 </div>
               ) : isInvite ? (
                 /* ---------- INVITATION — the passport's back cover ---------- */
-                <div className="relative flex h-full w-full flex-col items-start justify-center overflow-hidden rounded-2xl border border-cover-gold/40 bg-passport-green px-12 text-left text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-14">
+                <div className="relative flex h-full w-full flex-col items-start justify-center rounded-2xl border border-cover-gold/40 bg-passport-green px-12 text-left text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-14">
                   <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/25" />
-                  {/* flowing gold "Our Wedding" watermark behind the invitation text */}
-                  <span
-                    aria-hidden
-                    className="font-script pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-center text-[clamp(3.2rem,17svh,6rem)] leading-none text-cover-gold/25 -rotate-[8deg]"
-                  >
-                    Our Wedding
-                  </span>
                   <div className="relative z-10 w-full space-y-4">
                     {content.invite.map((para, i) => (
                       <p key={i} className={`${serif} text-[clamp(0.82rem,2.5svh,1.05rem)] leading-relaxed`}>
