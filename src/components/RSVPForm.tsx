@@ -163,6 +163,8 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           : t(childChair === 'yes' ? content.form.childChairYes : content.form.childChairNo);
       const companionsDisplay = companions.map((c) => c.trim()).filter(Boolean).join(sep) || '—';
 
+      // Wedding-info block for the email: date, time and venue of the luncheon
+      // only (the after-party is intentionally left out).
       const evRows = (ev: (typeof content.events)['wedding']): [string, string][] => [
         [t(content.eventFields.date), t(ev.date)],
         [t(content.eventFields.time), t(ev.time)],
@@ -187,10 +189,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           [t(content.form.vegetarianCount), String(vegetarianCount)],
         ],
         eventsHeading: t(content.eventsHeading),
-        events: [
-          { name: t(content.events.wedding.name), rows: evRows(content.events.wedding) },
-          { name: t(content.events.afterParty.name), rows: evRows(content.events.afterParty) },
-        ],
+        events: [{ name: t(content.events.wedding.name), rows: evRows(content.events.wedding) }],
         contact: t(content.email.contact),
         signoff: t(content.email.signoff),
         signature: t(content.email.signature),
