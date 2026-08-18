@@ -57,9 +57,9 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
         aria-hidden
         className="font-script pointer-events-none absolute inset-0 z-0 flex flex-col justify-between py-[5svh] text-cover-gold/25 leading-[0.8]"
       >
-        <span className="self-start pl-[5vw] text-[19vw]">Colbert</span>
-        <span className="self-center text-[13vw] text-cover-gold/30">&amp;</span>
-        <span className="self-end pr-[5vw] text-[19vw]">Crystal</span>
+        <span className="self-start -ml-[3vw] text-[32vw]">Colbert</span>
+        <span className="self-center text-[20vw] text-cover-gold/30">&amp;</span>
+        <span className="self-end -mr-[3vw] text-[32vw]">Crystal</span>
       </div>
       <div
         className={`relative z-10 mx-auto ${
