@@ -51,7 +51,9 @@ function doPost(e) {
           sendConfirmationEmail(data); // legacy fallback
         }
       } catch (mailErr) {
-        // swallow; the response below still reports success
+        // Don't fail the RSVP if the email can't send, but DO record why so
+        // it shows up in the Apps Script "Executions" log for debugging.
+        Logger.log('MAIL ERROR for ' + data.email + ': ' + mailErr);
       }
     }
 
@@ -181,4 +183,34 @@ function getOrCreateFolder(name) {
 
 function jsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Manual test that runs the SAME code a real guest submission runs.
+ * 1. Change TEST_TO below to the address you want to check.
+ * 2. Save (Ctrl+S), pick `testRealFlow` in the dropdown, click Run.
+ * 3. Read the "Execution log" — it prints the quota, the recipient, and
+ *    either "email sent" or the exact error.
+ */
+function testRealFlow() {
+  var TEST_TO = 'crystal.l.chienho@gmail.com'; // ← change to the address to test
+
+  Logger.log('Account running: ' + Session.getActiveUser().getEmail());
+  Logger.log('Remaining daily email quota: ' + MailApp.getRemainingDailyQuota());
+
+  var fakeEvent = {
+    postData: {
+      contents: JSON.stringify({
+        name: 'Test Guest',
+        email: TEST_TO,
+        attending: ['Wedding Luncheon'],
+        emailSubject: 'RSVP test — please ignore',
+        emailHtml: '<div style="font-family:sans-serif;padding:16px;">This is a test of the confirmation email path.</div>',
+      }),
+    },
+  };
+
+  var result = doPost(fakeEvent);
+  Logger.log('doPost returned: ' + result.getContent());
+  Logger.log('Done. If no "MAIL ERROR" appears above, the email was sent to ' + TEST_TO);
 }
