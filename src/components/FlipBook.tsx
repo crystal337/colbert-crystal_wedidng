@@ -114,14 +114,21 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                       whileTap={{ scale: 0.95 }}
                       className="font-passport-serif rounded-full bg-cover-gold px-10 py-1.5 text-lg font-semibold tracking-[0.15em] text-passport-green shadow-lg shadow-cover-gold/30"
                     >
-                      {content.cover.openButton}
+                      {t(content.cover.openButton)}
                     </motion.button>
                   </div>
                 </div>
               ) : isInvite ? (
                 /* ---------- INVITATION — the passport's back cover ---------- */
-                <div className="relative flex h-full w-full flex-col items-start justify-center rounded-2xl border border-cover-gold/40 bg-passport-green px-12 text-left text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-14">
+                <div className="relative flex h-full w-full flex-col items-start justify-center overflow-hidden rounded-2xl border border-cover-gold/40 bg-passport-green px-12 text-left text-cream shadow-[0_25px_50px_-18px_rgba(10,36,25,0.6)] sm:px-14">
                   <div className="pointer-events-none absolute inset-[12px] rounded-xl border border-cover-gold/25" />
+                  {/* flowing gold "Our Wedding" watermark behind the invitation text */}
+                  <span
+                    aria-hidden
+                    className="font-script pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-center text-[clamp(3.2rem,17svh,6rem)] leading-none text-cover-gold/25 -rotate-[8deg]"
+                  >
+                    Our Wedding
+                  </span>
                   <div className="relative z-10 w-full space-y-4">
                     {content.invite.map((para, i) => (
                       <p key={i} className={`${serif} text-[clamp(0.82rem,2.5svh,1.05rem)] leading-relaxed`}>

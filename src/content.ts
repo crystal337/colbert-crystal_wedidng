@@ -9,9 +9,9 @@ export const content = {
   // The cover is always shown in English, regardless of the language toggle.
   cover: {
     passportWord: 'PASSPORT',
-    line: 'Marriage of Crystal & Colbert',
+    line: 'Crystal & Colbert',
     date: 'Jan 2027',
-    openButton: 'Open',
+    openButton: { zh: '開啟', en: 'Open' } as Bi,
   },
 
   // The inner "passport" story pages (image + caption). Follow the toggle.
@@ -26,11 +26,11 @@ export const content = {
     } as Bi,
     {
       zh: '從澳洲到香港的距離',
-      en: 'The distance from Australia to Hong Kong.',
+      en: 'Crossing oceans and time zones between Australia and Hong Kong.',
     } as Bi,
     {
       zh: '到新加坡和香港的距離，去年再一起攜手從星回港',
-      en: 'To Singapore, then hand in hand back to Hong Kong together.',
+      en: 'Another chapter of distance in Singapore, until we finally landed back in Hong Kong.',
     } as Bi,
     {
       zh: '如今，我們要結婚啦！',
@@ -177,7 +177,7 @@ export const content = {
     flight: 'CC 0123',
     date: '23 JAN 2027',
     boardingTime: '12:00',
-    gate: { zh: '高雄洲際酒店 4 樓 芳苑廳', en: 'InterContinental Kaohsiung' } as Bi,
+    gate: { zh: '高雄洲際酒店', en: 'InterContinental Kaohsiung' } as Bi,
     seat: { zh: '待定', en: 'TBC' } as Bi,
     passengerLabel: 'PASSENGER',
     fallbackName: { zh: '貴賓', en: 'Guest' } as Bi,

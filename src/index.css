@@ -12,6 +12,8 @@
   /* elegant "official document" fonts, used only on the passport cover */
   --font-passport: "Cinzel", serif;
   --font-passport-serif: "Cormorant Garamond", serif;
+  /* flowing wedding script, used for the "Our Wedding" back-cover watermark */
+  --font-script: "Great Vibes", cursive;
 
   --color-cream: #fdf6ea;
   --color-cream-dark: #f3e6cd;
@@ -83,6 +85,9 @@ body {
 }
 .font-passport-serif {
   font-family: var(--font-passport-serif);
+}
+.font-script {
+  font-family: var(--font-script);
 }
 
 /* soft scrollbar for a gentler feel */
