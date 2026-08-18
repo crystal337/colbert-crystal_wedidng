@@ -51,13 +51,15 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       transition={{ duration: 1 }}
       className="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden px-4 py-4"
     >
-      {/* flowing gold "Our Wedding" script across the whole page background */}
-      <span
+      {/* flowing gold "Our Wedding" script filling the whole page background,
+          "Our" on top, "Wedding" below, stretched edge to edge */}
+      <div
         aria-hidden
-        className="font-script pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-center leading-none text-cover-gold/20 -rotate-[8deg] text-[clamp(3.5rem,15vw,11rem)]"
+        className="font-script pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-between py-[4svh] text-cover-gold/20 leading-none"
       >
-        Our Wedding
-      </span>
+        <span className="text-[26vw]">Our</span>
+        <span className="text-[24vw]">Wedding</span>
+      </div>
       <div
         className={`relative z-10 mx-auto ${
           isCover
