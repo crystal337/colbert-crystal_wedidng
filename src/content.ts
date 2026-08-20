@@ -216,6 +216,25 @@ export const content = {
     } as Bi,
     signoff: { zh: '', en: '' } as Bi,
     signature: { zh: '從譯 ＆ 芊和', en: 'Colbert & Crystal' } as Bi,
+
+    // Airline "electronic ticket receipt" wording for the confirmation email.
+    receipt: {
+      label: { zh: '電子邀請函收據', en: 'Electronic Invitation Receipt' } as Bi,
+      nameLabel: { zh: '姓名', en: 'Name' } as Bi,
+      thanks: {
+        zh: '感謝你的回覆，我們已為你保留席位，期待很快與你相見。',
+        en: 'Thank you for your reply. Your seat is reserved, and we look forward to welcoming you soon.',
+      } as Bi,
+      refLabel: { zh: '訂位代號', en: 'Booking reference' } as Bi,
+      issueDateLabel: { zh: '開立日期', en: 'Date of issue' } as Bi,
+      issuedByLabel: { zh: '開立單位', en: 'Issued by' } as Bi,
+      issuedBy: { zh: '從譯 & 芊和', en: 'Colbert & Crystal' } as Bi,
+      cabin: { zh: '婚禮午宴', en: 'Wedding Luncheon' } as Bi,
+      footnote: {
+        zh: '所有時間以高雄當地時間為準。',
+        en: 'All times are local to Kaohsiung.',
+      } as Bi,
+    },
   },
 
   thankYou: {

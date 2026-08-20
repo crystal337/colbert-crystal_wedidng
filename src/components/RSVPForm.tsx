@@ -163,36 +163,48 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           : t(childChair === 'yes' ? content.form.childChairYes : content.form.childChairNo);
       const companionsDisplay = companions.map((c) => c.trim()).filter(Boolean).join(sep) || '—';
 
-      // Boarding-pass ticket for the email (mirrors the on-site boarding pass;
-      // its date / boarding / gate already carry the wedding-day info).
+      // Airline "electronic ticket receipt" for the email. Its route / date /
+      // boarding / gate carry the wedding-day info; the couple's names double
+      // as the airline + booking issuer.
       const bp = content.boardingPass;
+      const rc = content.email.receipt;
+      const now = new Date();
+      const issueDate =
+        lang === 'zh'
+          ? `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`
+          : now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
       const ticket = {
-        title: bp.title,
-        subtitle: t(bp.subtitle),
+        brandName: t(content.email.brand),
+        receiptLabel: t(rc.label),
+        nameLabel: t(rc.nameLabel),
+        passenger: name.trim() || t(bp.fallbackName),
+        bookingThanks: t(rc.thanks),
+        meta: [
+          [t(rc.refLabel), bp.flight],
+          [t(rc.issueDateLabel), issueDate],
+          [t(rc.issuedByLabel), t(rc.issuedBy)],
+        ] as [string, string][],
         fromCode: bp.fromCode,
         fromCity: t(bp.fromCity),
         toCode: bp.toCode,
         toCity: t(bp.toCity),
-        passengerLabel: bp.passengerLabel,
-        passenger: name.trim() || t(bp.fallbackName),
-        rowsTop: [
-          [bp.labels.flight, bp.flight],
+        routeWhen: `${bp.date} · ${bp.boardingTime}`,
+        flightLine: `${bp.flight} · ${t(rc.issuedBy)}`,
+        cabin: t(rc.cabin),
+        details: [
           [bp.labels.date, bp.date],
           [bp.labels.boarding, bp.boardingTime],
-        ] as [string, string][],
-        rowsBottom: [
           [bp.labels.gate, t(bp.gate)],
           [bp.labels.seat, t(bp.seat)],
         ] as [string, string][],
-        note: t(bp.note),
+        footnote: t(rc.footnote),
       };
 
       const emailData = buildConfirmationEmail({
-        brand: t(content.email.brand),
-        title: t(content.email.title),
-        greeting: t(content.email.greeting),
-        name: name.trim(),
-        intro: t(content.email.intro),
+        subjectBrand: t(content.email.brand),
+        subjectTitle: t(content.email.title),
+        ticket,
         detailsHeading: t(content.email.detailsHeading),
         detailRows: [
           [t(content.form.name), name.trim()],
@@ -204,7 +216,6 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           [t(content.form.childChair), childChairDisplay],
           [t(content.form.vegetarianCount), String(vegetarianCount)],
         ],
-        ticket,
         contact: t(content.email.contact),
         signoff: t(content.email.signoff),
         signature: t(content.email.signature),
