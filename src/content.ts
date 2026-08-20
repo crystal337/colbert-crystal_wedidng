@@ -219,7 +219,7 @@ export const content = {
 
     // Airline "electronic ticket receipt" wording for the confirmation email.
     receipt: {
-      label: { zh: '電子邀請函收據', en: 'Electronic Invitation Receipt' } as Bi,
+      label: { zh: '你的旅程提醒', en: 'Your Travel Reminder' } as Bi,
       nameLabel: { zh: '姓名', en: 'Name' } as Bi,
       thanks: {
         zh: '感謝你的回覆，我們已為你保留席位，期待很快與你相見。',

@@ -89,7 +89,7 @@ function routeRow(tk: Ticket) {
     `<div style="color:${GREEN};font-size:26px;font-weight:800;line-height:1;">${esc(tk.fromCode)}</div>` +
     `<div style="color:${MUTED};font-size:12px;margin-top:4px;">${esc(tk.fromCity)}</div></td>` +
     `<td width="40%" align="center" style="vertical-align:top;padding-top:6px;">` +
-    `<div style="color:${GOLD};font-size:14px;letter-spacing:1px;white-space:nowrap;">&#9679;&nbsp;&mdash;&mdash;&mdash;&mdash;&nbsp;&#9992;&nbsp;&mdash;&mdash;&mdash;&mdash;&nbsp;&#9679;</div>` +
+    `<div style="color:${GOLD};font-size:14px;letter-spacing:2px;white-space:nowrap;">&#9679;&nbsp;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&nbsp;&#9679;</div>` +
     `<div style="color:${MUTED};font-size:12px;margin-top:8px;">${esc(tk.routeWhen)}</div></td>` +
     `<td width="30%" align="right" style="vertical-align:top;">` +
     `<div style="color:${GREEN};font-size:26px;font-weight:800;line-height:1;">${esc(tk.toCode)}</div>` +
@@ -115,13 +115,18 @@ function itinerary(tk: Ticket) {
     `<div style="border-top:1px solid ${LINE};margin:16px 0;"></div>` +
     // flight + cabin badge
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>` +
-    `<td style="vertical-align:middle;color:${INK};font-size:13px;font-weight:700;">&#9992;&nbsp; ${esc(tk.flightLine)}</td>` +
+    `<td style="vertical-align:middle;color:${INK};font-size:13px;font-weight:700;letter-spacing:0.3px;">${esc(tk.flightLine)}</td>` +
     `<td align="right" style="vertical-align:middle;">` +
     `<span style="display:inline-block;background:${GREEN};color:#ffffff;font-size:11px;letter-spacing:0.5px;padding:4px 12px;border-radius:4px;">${esc(tk.cabin)}</span>` +
     `</td></tr></table>` +
     `<div style="border-top:1px solid ${LINE};margin:16px 0;"></div>` +
     detailsRow(tk.details) +
     `<div style="color:${MUTED};font-size:11px;margin-top:14px;">${esc(tk.footnote)}</div>` +
+    // barcode inside the ticket card
+    `<div style="border-top:1px solid ${LINE};margin:16px 0 0;padding-top:16px;text-align:center;">` +
+    barcode() +
+    `<div style="color:${MUTED};font-size:11px;letter-spacing:3px;margin-top:8px;">${esc(tk.meta[0][1])}</div>` +
+    '</div>' +
     '</div>'
   );
 }
@@ -152,11 +157,9 @@ export function buildConfirmationEmail(input: ConfirmationEmailInput): { subject
     `<div style="background:${PAGE};padding:24px 12px;font-family:'Helvetica Neue',Arial,'PingFang TC','Microsoft JhengHei',sans-serif;">` +
     `<div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid ${LINE};border-radius:12px;overflow:hidden;">` +
     `<div style="padding:22px 24px;">` +
-    // top bar: brand logo + receipt label
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>` +
-    `<td style="vertical-align:middle;color:${GREEN};font-size:17px;font-weight:800;letter-spacing:0.5px;">${esc(tk.brandName)}</td>` +
-    `<td align="right" style="vertical-align:middle;color:${MUTED};font-size:11px;letter-spacing:1px;text-transform:uppercase;">${esc(tk.receiptLabel)}</td>` +
-    `</tr></table>` +
+    // title (e.g. "Your Travel Reminder") + wedding name
+    `<div style="color:${GREEN};font-size:21px;font-weight:800;letter-spacing:0.3px;">${esc(tk.receiptLabel)}</div>` +
+    `<div style="color:${GOLD};font-size:13px;margin-top:4px;">${esc(tk.brandName)}</div>` +
     `<div style="border-top:2px solid ${GREEN};margin:14px 0 18px;"></div>` +
     // name + booking meta
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>` +
@@ -173,11 +176,6 @@ export function buildConfirmationEmail(input: ConfirmationEmailInput): { subject
     // contact + signature
     `<p style="margin:20px 0 0;color:#6b6b6b;font-size:13px;line-height:1.7;">${esc(input.contact)}</p>` +
     `<p style="margin:16px 0 0;font-size:13px;">${input.signoff ? `${esc(input.signoff)}<br/>` : ''}<b style="color:${GREEN};">${esc(input.signature)}</b></p>` +
-    // barcode footer (airline ticket style)
-    `<div style="border-top:1px solid ${LINE};margin:24px 0 0;padding-top:18px;text-align:center;">` +
-    barcode() +
-    `<div style="color:${MUTED};font-size:11px;letter-spacing:3px;margin-top:8px;">${esc(tk.meta[0][1])}</div>` +
-    '</div>' +
     '</div>' +
     '</div>' +
     '</div>';
