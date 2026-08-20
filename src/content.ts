@@ -211,8 +211,8 @@ export const content = {
     } as Bi,
     detailsHeading: { zh: '你的回覆', en: 'Your Reply' } as Bi,
     contact: {
-      zh: '如果有需要修改的地方，請隨時聯絡新郎或新娘，我們期待在婚禮見到你！',
-      en: 'If anything needs changing, please feel free to reach out to the groom or bride — we look forward to seeing you at the wedding!',
+      zh: '如果有需要修改的地方，請聯絡從譯或芊和，我們期待在婚禮見到你！',
+      en: 'If anything needs changing, please reach out to Colbert or Crystal — we look forward to seeing you at the wedding!',
     } as Bi,
     signoff: { zh: '', en: '' } as Bi,
     signature: { zh: '從譯 ＆ 芊和', en: 'Colbert & Crystal' } as Bi,

@@ -53,6 +53,19 @@ function field(label: string, value: string, big = false) {
   );
 }
 
+// A fake barcode built from alternating solid cells so it renders everywhere
+// (no gradients / SVG, which Gmail strips).
+function barcode() {
+  const widths = [2, 1, 3, 1, 2, 4, 1, 2, 1, 3, 2, 1, 4, 2, 1, 2, 3, 1, 2, 1, 3, 4, 1, 2, 1, 2, 3, 1, 4, 1, 2, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 3, 2, 1];
+  const cells = widths
+    .map(
+      (w, i) =>
+        `<td style="width:${w * 2}px;height:44px;background:${i % 2 === 0 ? GREEN : '#ffffff'};font-size:0;line-height:0;">&nbsp;</td>`,
+    )
+    .join('');
+  return `<table cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;margin:0 auto;"><tr>${cells}</tr></table>`;
+}
+
 function metaTable(rows: Row[]) {
   return (
     '<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">' +
@@ -160,6 +173,11 @@ export function buildConfirmationEmail(input: ConfirmationEmailInput): { subject
     // contact + signature
     `<p style="margin:20px 0 0;color:#6b6b6b;font-size:13px;line-height:1.7;">${esc(input.contact)}</p>` +
     `<p style="margin:16px 0 0;font-size:13px;">${input.signoff ? `${esc(input.signoff)}<br/>` : ''}<b style="color:${GREEN};">${esc(input.signature)}</b></p>` +
+    // barcode footer (airline ticket style)
+    `<div style="border-top:1px solid ${LINE};margin:24px 0 0;padding-top:18px;text-align:center;">` +
+    barcode() +
+    `<div style="color:${MUTED};font-size:11px;letter-spacing:3px;margin-top:8px;">${esc(tk.meta[0][1])}</div>` +
+    '</div>' +
     '</div>' +
     '</div>' +
     '</div>';
