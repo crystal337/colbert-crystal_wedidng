@@ -104,14 +104,20 @@ function routeRow(tk: Ticket) {
   );
 }
 
+// Two columns per row so the fuller date / time / venue values stay readable.
 function detailsRow(rows: Row[]) {
-  const cells = rows
-    .map(
-      (r) =>
-        `<td width="25%" style="vertical-align:top;padding:0 8px 0 0;">${field(r[0], r[1])}</td>`,
-    )
-    .join('');
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${cells}</tr></table>`;
+  let html = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">';
+  for (let i = 0; i < rows.length; i += 2) {
+    const a = rows[i];
+    const b = rows[i + 1];
+    const topPad = i > 0 ? '14px' : '0';
+    html +=
+      '<tr>' +
+      `<td width="50%" style="vertical-align:top;padding:${topPad} 12px 0 0;">${field(a[0], a[1])}</td>` +
+      (b ? `<td width="50%" style="vertical-align:top;padding:${topPad} 0 0 0;">${field(b[0], b[1])}</td>` : '<td width="50%"></td>') +
+      '</tr>';
+  }
+  return html + '</table>';
 }
 
 function itinerary(tk: Ticket) {

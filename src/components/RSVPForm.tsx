@@ -194,8 +194,9 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
         flightLine: `${bp.flight} · ${t(rc.issuedBy)}`,
         cabin: t(rc.cabin),
         details: [
-          [bp.labels.date, bp.date],
-          [bp.labels.boarding, bp.boardingTime],
+          // Full, human-readable date & time (with weekday) so it reads clearly.
+          [bp.labels.date, t(content.events.wedding.date)],
+          ['TIME', t(content.events.wedding.time)],
           // Full venue (hall included) in the email, unlike the shorter on-site gate.
           [bp.labels.gate, t(content.events.wedding.location)],
           [bp.labels.seat, t(bp.seat)],
