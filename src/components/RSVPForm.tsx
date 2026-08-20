@@ -163,13 +163,29 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           : t(childChair === 'yes' ? content.form.childChairYes : content.form.childChairNo);
       const companionsDisplay = companions.map((c) => c.trim()).filter(Boolean).join(sep) || '—';
 
-      // Wedding-info block for the email: date, time and venue of the luncheon
-      // only (the after-party is intentionally left out).
-      const evRows = (ev: (typeof content.events)['wedding']): [string, string][] => [
-        [t(content.eventFields.date), t(ev.date)],
-        [t(content.eventFields.time), t(ev.time)],
-        [t(content.eventFields.venue), t(ev.location)],
-      ];
+      // Boarding-pass ticket for the email (mirrors the on-site boarding pass;
+      // its date / boarding / gate already carry the wedding-day info).
+      const bp = content.boardingPass;
+      const ticket = {
+        title: bp.title,
+        subtitle: t(bp.subtitle),
+        fromCode: bp.fromCode,
+        fromCity: t(bp.fromCity),
+        toCode: bp.toCode,
+        toCity: t(bp.toCity),
+        passengerLabel: bp.passengerLabel,
+        passenger: name.trim() || t(bp.fallbackName),
+        rowsTop: [
+          [bp.labels.flight, bp.flight],
+          [bp.labels.date, bp.date],
+          [bp.labels.boarding, bp.boardingTime],
+        ] as [string, string][],
+        rowsBottom: [
+          [bp.labels.gate, t(bp.gate)],
+          [bp.labels.seat, t(bp.seat)],
+        ] as [string, string][],
+        note: t(bp.note),
+      };
 
       const emailData = buildConfirmationEmail({
         brand: t(content.email.brand),
@@ -188,8 +204,7 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           [t(content.form.childChair), childChairDisplay],
           [t(content.form.vegetarianCount), String(vegetarianCount)],
         ],
-        eventsHeading: t(content.eventsHeading),
-        events: [{ name: t(content.events.wedding.name), rows: evRows(content.events.wedding) }],
+        ticket,
         contact: t(content.email.contact),
         signoff: t(content.email.signoff),
         signature: t(content.email.signature),

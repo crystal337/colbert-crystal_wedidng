@@ -18,9 +18,9 @@ export function Completion({ name }: { name: string }) {
       transition={{ duration: 0.5 }}
       className="flex min-h-svh flex-col items-center justify-start py-8"
     >
+      <Gallery />
       <BoardingPass name={name} />
       <ThankYou />
-      <Gallery />
     </motion.div>
   );
 }
