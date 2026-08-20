@@ -217,9 +217,18 @@ export const content = {
     signoff: { zh: '', en: '' } as Bi,
     signature: { zh: '從譯 ＆ 芊和', en: 'Colbert & Crystal' } as Bi,
 
+    // Group-join buttons echoed inside the confirmation email so guests can
+    // join even after leaving the site.
+    groupsIntro: {
+      zh: '活動的後續資訊會在群組公布，歡迎點擊加入：',
+      en: "We'll share event updates in these groups — tap to join:",
+    } as Bi,
+
     // Airline "electronic ticket receipt" wording for the confirmation email.
     receipt: {
       label: { zh: '你的旅程提醒', en: 'Your Travel Reminder' } as Bi,
+      venueLabel: { zh: '查看場地資訊', en: 'View venue details' } as Bi,
+      venueUrl: 'https://ickaohsiung.com/en/events-en/fangyuan/',
       nameLabel: { zh: '姓名', en: 'Name' } as Bi,
       thanks: {
         zh: '感謝你的回覆，我們已為你保留席位，期待很快與你相見。',

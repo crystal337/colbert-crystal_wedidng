@@ -6,6 +6,7 @@ import { useLang } from '../i18n';
 import { fileToCompressedBase64 } from '../lib/image';
 import { submitRSVP } from '../lib/submit';
 import { buildConfirmationEmail } from '../lib/email';
+import { LINE_GROUP_URL, WHATSAPP_GROUP_URL } from '../config';
 
 type Attending = 'wedding' | 'afterParty';
 type Relationship =
@@ -195,10 +196,13 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
         details: [
           [bp.labels.date, bp.date],
           [bp.labels.boarding, bp.boardingTime],
-          [bp.labels.gate, t(bp.gate)],
+          // Full venue (hall included) in the email, unlike the shorter on-site gate.
+          [bp.labels.gate, t(content.events.wedding.location)],
           [bp.labels.seat, t(bp.seat)],
         ] as [string, string][],
         footnote: t(rc.footnote),
+        venueLabel: t(rc.venueLabel),
+        venueUrl: rc.venueUrl,
       };
 
       const emailData = buildConfirmationEmail({
@@ -215,6 +219,11 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
           [t(content.form.attending), attendDisplay],
           [t(content.form.childChair), childChairDisplay],
           [t(content.form.vegetarianCount), String(vegetarianCount)],
+        ],
+        groupsIntro: t(content.email.groupsIntro),
+        groups: [
+          { label: t(content.thankYou.line), url: LINE_GROUP_URL },
+          { label: t(content.thankYou.whatsapp), url: WHATSAPP_GROUP_URL },
         ],
         contact: t(content.email.contact),
         signoff: t(content.email.signoff),

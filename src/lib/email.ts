@@ -21,7 +21,11 @@ export type Ticket = {
   cabin: string; // cabin-class style badge, e.g. "Wedding Luncheon"
   details: Row[]; // DATE / BOARDING / GATE / SEAT
   footnote: string;
+  venueLabel?: string;
+  venueUrl?: string;
 };
+
+export type GroupButton = { label: string; url: string };
 
 export type ConfirmationEmailInput = {
   subjectBrand: string;
@@ -29,6 +33,8 @@ export type ConfirmationEmailInput = {
   ticket: Ticket;
   detailsHeading: string;
   detailRows: Row[];
+  groupsIntro: string;
+  groups: GroupButton[];
   contact: string;
   signoff: string;
   signature: string;
@@ -121,7 +127,11 @@ function itinerary(tk: Ticket) {
     `</td></tr></table>` +
     `<div style="border-top:1px solid ${LINE};margin:16px 0;"></div>` +
     detailsRow(tk.details) +
-    `<div style="color:${MUTED};font-size:11px;margin-top:14px;">${esc(tk.footnote)}</div>` +
+    `<div style="color:${MUTED};font-size:11px;margin-top:14px;">${esc(tk.footnote)}` +
+    (tk.venueUrl && tk.venueLabel
+      ? `&nbsp;&nbsp;<a href="${esc(tk.venueUrl)}" style="color:${GREEN};text-decoration:underline;">${esc(tk.venueLabel)}</a>`
+      : '') +
+    '</div>' +
     // barcode inside the ticket card
     `<div style="border-top:1px solid ${LINE};margin:16px 0 0;padding-top:16px;text-align:center;">` +
     barcode() +
@@ -149,6 +159,13 @@ function replyTable(heading: string, rows: Row[]) {
   );
 }
 
+function groupButton(g: GroupButton) {
+  return (
+    `<a href="${esc(g.url)}" style="display:block;background:${GREEN};color:#ffffff;text-decoration:none;` +
+    `text-align:center;padding:13px 18px;border-radius:8px;font-size:14px;font-weight:600;margin-top:10px;">${esc(g.label)}</a>`
+  );
+}
+
 export function buildConfirmationEmail(input: ConfirmationEmailInput): { subject: string; html: string } {
   const subject = `${input.subjectBrand}｜${input.subjectTitle}`;
   const tk = input.ticket;
@@ -173,8 +190,15 @@ export function buildConfirmationEmail(input: ConfirmationEmailInput): { subject
     itinerary(tk) +
     // your reply
     replyTable(input.detailsHeading, input.detailRows) +
+    // group-join buttons
+    (input.groups.length
+      ? `<div style="margin-top:24px;">` +
+        `<p style="margin:0 0 4px;color:#6b6b6b;font-size:13px;">${esc(input.groupsIntro)}</p>` +
+        input.groups.map(groupButton).join('') +
+        '</div>'
+      : '') +
     // contact + signature
-    `<p style="margin:20px 0 0;color:#6b6b6b;font-size:13px;line-height:1.7;">${esc(input.contact)}</p>` +
+    `<p style="margin:22px 0 0;color:#6b6b6b;font-size:13px;line-height:1.7;">${esc(input.contact)}</p>` +
     `<p style="margin:16px 0 0;font-size:13px;">${input.signoff ? `${esc(input.signoff)}<br/>` : ''}<b style="color:${GREEN};">${esc(input.signature)}</b></p>` +
     '</div>' +
     '</div>' +
