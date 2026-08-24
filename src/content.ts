@@ -94,9 +94,9 @@ export const content = {
     afterParty: {
       badge: { zh: '連接航班（可選）', en: 'Connecting Flight (Optional)' } as Bi,
       name: { zh: '宴後小聚 | 愛河邊的黃金時光', en: 'After Party | Golden Hour by the Love River' } as Bi,
-      location: { zh: '地點待訂', en: 'Venue TBD' } as Bi,
+      location: { zh: '地點待定', en: 'Venue TBD' } as Bi,
       date: { zh: '2027 年 1 月 23 日（六）', en: 'Saturday, Jan 23, 2027' } as Bi,
-      time: { zh: '17:00（待訂）', en: '5:00 PM (TBD)' } as Bi,
+      time: { zh: '17:00（待定）', en: '5:00 PM (TBD)' } as Bi,
       description: {
         zh: '婚禮後，如果你有興致留下來，歡迎到河邊放鬆一下、喝點小東西、和我們敘敘舊。',
         en: 'If you would like to keep the celebration going, join us by the river to unwind, grab a (soft) drink, and catch up.',
