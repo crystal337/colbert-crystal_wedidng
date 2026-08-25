@@ -28,7 +28,7 @@ export const content = {
       en: 'Navigating the long-haul — years of distance across time zones only brought us closer',
     },
     {
-      zh: '一邊在荷蘭熱情微醺地探索生活，另一邊在南半球紅土丘上一圓小小投手夢',
+      zh: '一邊在北半球熱情（微醺）地探索，一邊在南半球追逐小投手夢。',
       en: 'From one chasing wild adventures up north in the Netherlands, to the other chasing the strike zone down south',
       year: '2019',
     },
@@ -214,15 +214,15 @@ export const content = {
   // client in the guest's current language, sent via Apps Script).
   email: {
     brand: { zh: '從譯 & 芊和婚禮', en: "Colbert & Crystal's Wedding" } as Bi,
-    title: { zh: '我們已經收到你的回覆', en: "We've Received Your Reply" } as Bi,
+    title: { zh: '我們已經收到您的回覆', en: "We've Received Your Reply" } as Bi,
     greeting: { zh: '親愛的', en: 'Dear' } as Bi,
     intro: {
-      zh: '感謝你的填寫，以下是你的出席確認：',
+      zh: '感謝您的填寫，以下是您的出席確認：',
       en: 'Thank you for your reply — here is your attendance confirmation:',
     } as Bi,
-    detailsHeading: { zh: '你的回覆', en: 'Your Reply' } as Bi,
+    detailsHeading: { zh: '您的回覆', en: 'Your Reply' } as Bi,
     contact: {
-      zh: '如果有需要修改的地方，請聯絡從譯或芊和，我們期待在婚禮見到你！',
+      zh: '如果有需要修改的地方，請聯絡從譯或芊和，我們期待在婚禮見到您！',
       en: 'If anything needs changing, please reach out to Colbert or Crystal — we look forward to seeing you at the wedding!',
     } as Bi,
     signoff: { zh: '', en: '' } as Bi,
@@ -237,12 +237,12 @@ export const content = {
 
     // Airline "electronic ticket receipt" wording for the confirmation email.
     receipt: {
-      label: { zh: '你的旅程提醒', en: 'Your Travel Reminder' } as Bi,
+      label: { zh: '您的旅程提醒', en: 'Your Travel Reminder' } as Bi,
       venueLabel: { zh: '查看場地資訊', en: 'View venue details' } as Bi,
       venueUrl: 'https://ickaohsiung.com/en/events-en/fangyuan/',
       nameLabel: { zh: '姓名', en: 'Name' } as Bi,
       thanks: {
-        zh: '感謝你的回覆，我們已為你保留席位，期待很快與你相見。',
+        zh: '感謝您的回覆，我們已為您保留席位，期待很快與您相見。',
         en: 'Thank you for your reply. Your seat is reserved, and we look forward to welcoming you soon.',
       } as Bi,
       refLabel: { zh: '訂位代號', en: 'Booking reference' } as Bi,
