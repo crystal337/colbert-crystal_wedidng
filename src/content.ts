@@ -28,7 +28,7 @@ export const content = {
       en: 'Navigating the long-haul — years of distance across time zones only brought us closer',
     },
     {
-      zh: '一邊在北半球熱情（微醺）地探索，一邊在南半球追逐小投手夢。',
+      zh: '一邊在北半球熱情（微醺）地探索，一邊在南半球追逐小投手夢',
       en: 'From one chasing wild adventures up north in the Netherlands, to the other chasing the strike zone down south',
       year: '2019',
     },
@@ -240,6 +240,8 @@ export const content = {
       label: { zh: '您的旅程提醒', en: 'Your Travel Reminder' } as Bi,
       venueLabel: { zh: '查看場地資訊', en: 'View venue details' } as Bi,
       venueUrl: 'https://ickaohsiung.com/en/events-en/fangyuan/',
+      mapLabel: { zh: 'Google 地圖', en: 'Google Maps' } as Bi,
+      mapUrl: 'https://maps.app.goo.gl/bx3xmGPSPtdYYoee9',
       nameLabel: { zh: '姓名', en: 'Name' } as Bi,
       thanks: {
         zh: '感謝您的回覆，我們已為您保留席位，期待很快與您相見。',

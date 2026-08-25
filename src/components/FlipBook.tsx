@@ -65,7 +65,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
           "Our" on top, "Wedding" below, stretched edge to edge */}
       <div
         aria-hidden
-        className="font-script pointer-events-none absolute inset-0 z-0 flex flex-col justify-between py-[15svh] text-cover-gold/15 leading-[0.75] md:py-[3svh]"
+        className="font-script pointer-events-none absolute inset-0 z-0 flex -translate-y-[7svh] flex-col justify-between py-[15svh] text-cover-gold/15 leading-[0.75] md:translate-y-0 md:py-[3svh]"
       >
         <span className="self-start -ml-[5vw] text-[41vw]">Colbert</span>
         <span className="self-center text-[24vw] text-cover-gold/20">&amp;</span>
@@ -170,7 +170,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                             storyPages[storyIndex].length > 1
                               ? 'aspect-[3/4] w-[46%]'
                               : 'max-h-full max-w-full object-contain'
-                          }`}
+                          } ${storyPages[storyIndex].length > 1 && i === 0 ? '[object-position:50%_18%]' : ''}`}
                         />
                       ))}
                     </div>

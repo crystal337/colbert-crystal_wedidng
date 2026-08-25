@@ -18,7 +18,7 @@ type Relationship =
   | 'other';
 type ChildChair = 'no' | 'yes' | 'other';
 
-const MAX_GUESTS = 8;
+const MAX_GUESTS = 5;
 
 const relationships = [
   ['groomRelative', content.form.relGroomRelative],
@@ -204,6 +204,8 @@ export function RSVPForm({ onSubmitted }: { onSubmitted: (name: string) => void 
         footnote: t(rc.footnote),
         venueLabel: t(rc.venueLabel),
         venueUrl: rc.venueUrl,
+        mapLabel: t(rc.mapLabel),
+        mapUrl: rc.mapUrl,
       };
 
       const emailData = buildConfirmationEmail({

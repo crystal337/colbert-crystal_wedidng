@@ -23,6 +23,8 @@ export type Ticket = {
   footnote: string;
   venueLabel?: string;
   venueUrl?: string;
+  mapLabel?: string;
+  mapUrl?: string;
 };
 
 export type GroupButton = { label: string; url: string };
@@ -136,6 +138,9 @@ function itinerary(tk: Ticket) {
     `<div style="color:${MUTED};font-size:11px;margin-top:14px;">${esc(tk.footnote)}` +
     (tk.venueUrl && tk.venueLabel
       ? `&nbsp;&nbsp;<a href="${esc(tk.venueUrl)}" style="color:${GREEN};text-decoration:underline;">${esc(tk.venueLabel)}</a>`
+      : '') +
+    (tk.mapUrl && tk.mapLabel
+      ? `&nbsp;（<a href="${esc(tk.mapUrl)}" style="color:${GREEN};text-decoration:underline;">${esc(tk.mapLabel)}</a>）`
       : '') +
     '</div>' +
     // barcode inside the ticket card
