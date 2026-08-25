@@ -17,24 +17,24 @@ export const content = {
   // The inner "passport" story pages (image + caption). Follow the toggle.
   story: [
     {
-      zh: '這趟旅程的開始 — 我們因留港讀書相識相知',
-      en: 'Where our flight path began — meeting and falling in love while studying in Hong Kong.',
+      zh: '這趟旅程的開始 — 我們因留港讀書相識相知 (2015)',
+      en: 'Where our flight path began — meeting and falling in love while studying in Hong Kong. (2015)',
     } as Bi,
     {
       zh: '聚少離多，在遠距離中相守',
       en: 'Navigating the long-haul — years of distance across time zones only brought us closer.',
     } as Bi,
     {
-      zh: '從澳洲到香港的時空差距',
-      en: 'Crossing oceans and time zones between Australia and Hong Kong.',
+      zh: '又一次從澳洲到香港的時空差距 (2023)',
+      en: 'Crossing oceans and time zones between Australia and Hong Kong. (2023)',
     } as Bi,
     {
-      zh: '轉至新加坡和香港的距離，去年攜手從星回港',
-      en: 'Another chapter of distance in Singapore, until we finally landed back in Hong Kong.',
+      zh: '轉至新加坡和香港的南海阻隔，去年攜手從星回港 (2025)',
+      en: 'Another chapter of distance in Singapore, until we finally landed back in Hong Kong. (2025)',
     } as Bi,
     {
-      zh: '如今，我們要結婚啦！',
-      en: 'Cleared for takeoff — and ready for our lifelong flight together!',
+      zh: '如今，我們要結婚啦！ (2026)',
+      en: 'Cleared for takeoff — and ready for our lifelong flight together! (2026)',
     } as Bi,
   ] as Bi[],
 
@@ -42,11 +42,11 @@ export const content = {
   // its own paragraph (separated by a blank line).
   invite: [
     {
-      zh: '感謝您見證我們的旅程，我們誠摯的想邀請您，一同參與這個日子。',
+      zh: '誠摯的邀請您一同見證我們的旅程～',
       en: 'Thank you for being part of our lives and witnessing our journey — with full hearts, we sincerely invite you to celebrate this day with us.',
     } as Bi,
     {
-      zh: '請在下一頁的表單，填寫您的旅客資料，帶著機票前往這趟婚禮旅程吧！',
+      zh: '請在下一頁表單，填寫您的旅客資料，搭乘專屬航班前往我們的婚禮吧！',
       en: 'Please fill in your passenger details in the form below, and get ready to board this wedding journey with your ticket ~',
     } as Bi,
   ] as Bi[],
