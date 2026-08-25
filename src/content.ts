@@ -25,6 +25,10 @@ export const content = {
       en: 'Navigating the long-haul — years of distance across time zones only brought us closer',
     } as Bi,
     {
+      zh: '一邊在荷蘭熱情微醺地探索生活，另一邊在南半球紅土丘上一圓小小投手夢 (2019)',
+      en: "One of us chasing the good life up north in the Netherlands, the other chasing a pitcher's dream on the red dirt down south (2019)",
+    } as Bi,
+    {
       zh: '又一次從澳洲到香港的時空差距 (2023)',
       en: 'Once again, crossing oceans and time zones between Australia and Hong Kong (2023)',
     } as Bi,

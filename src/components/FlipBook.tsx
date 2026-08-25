@@ -7,12 +7,22 @@ import story1 from '../assets/story1.jpg';
 import story2 from '../assets/story2.jpg';
 import story3 from '../assets/story3.jpg';
 import story4 from '../assets/story4.jpg';
+import storyNL from '../assets/story-nl.jpg';
+import storyAU from '../assets/story-au.jpg';
 import balloonsImg from '../assets/met.jpg';
 
-const storyImages = [story1, story2, story3, story4, balloonsImg];
+// Each story page holds one photo, or two shown side by side.
+const storyPages: string[][] = [
+  [story1],
+  [story2],
+  [storyNL, storyAU],
+  [story3],
+  [story4],
+  [balloonsImg],
+];
 
-// Deck: page 0 is the cover, pages 1..5 are the story pages, last page is the invite.
-const PAGE_COUNT = 1 + storyImages.length + 1;
+// Deck: page 0 is the cover, then the story pages, last page is the invite.
+const PAGE_COUNT = 1 + storyPages.length + 1;
 
 const variants = {
   enter: (dir: number) => ({ opacity: 0, rotateY: dir >= 0 ? 20 : -20 }),
@@ -150,12 +160,19 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                         {String(index).padStart(2, '0')} / {String(PAGE_COUNT - 1).padStart(2, '0')}
                       </span>
                     </div>
-                    <div className="flex min-h-0 flex-1 items-center justify-center p-5 pt-7">
-                      <img
-                        src={storyImages[storyIndex]}
-                        alt=""
-                        className="max-h-full max-w-full rounded-[3px] border-[6px] border-white shadow-[0_10px_24px_-10px_rgba(10,36,25,0.4)]"
-                      />
+                    <div className="flex min-h-0 flex-1 items-center justify-center gap-2 p-5 pt-7 sm:gap-3">
+                      {storyPages[storyIndex].map((src, i) => (
+                        <img
+                          key={i}
+                          src={src}
+                          alt=""
+                          className={`rounded-[3px] border-[6px] border-white object-cover shadow-[0_10px_24px_-10px_rgba(10,36,25,0.4)] ${
+                            storyPages[storyIndex].length > 1
+                              ? 'aspect-[3/4] w-[46%]'
+                              : 'max-h-full max-w-full object-contain'
+                          }`}
+                        />
+                      ))}
                     </div>
                     <div className="flex flex-col items-center gap-2 px-6 pb-8 text-center">
                       <span className="text-[0.6rem] font-semibold tracking-[0.3em] text-cover-gold uppercase">
