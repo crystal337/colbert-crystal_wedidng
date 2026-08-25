@@ -1,5 +1,7 @@
 // Bilingual copy for the whole site (Traditional Chinese + English).
 export type Bi = { zh: string; en: string };
+// A story page caption plus an optional year shown as a small label.
+export type StoryEntry = Bi & { year?: string };
 
 export const content = {
   meta: {
@@ -17,37 +19,42 @@ export const content = {
   // The inner "passport" story pages (image + caption). Follow the toggle.
   story: [
     {
-      zh: '這趟旅程的開始 — 我們因留港讀書相識相知 (2015)',
-      en: 'Where our flight path began — meeting and falling in love while studying in Hong Kong (2015)',
-    } as Bi,
+      zh: '這趟旅程的開始 — 我們因留港讀書相識相知',
+      en: 'Where our flight path began — meeting and falling in love while studying in Hong Kong',
+      year: '2017',
+    },
     {
       zh: '聚少離多，在遠距離中相守',
       en: 'Navigating the long-haul — years of distance across time zones only brought us closer',
-    } as Bi,
+    },
     {
-      zh: '一邊在荷蘭熱情微醺地探索生活，另一邊在南半球紅土丘上一圓小小投手夢 (2019)',
-      en: "One of us chasing the good life up north in the Netherlands, the other chasing a pitcher's dream on the red dirt down south (2019)",
-    } as Bi,
+      zh: '一邊在荷蘭熱情微醺地探索生活，另一邊在南半球紅土丘上一圓小小投手夢',
+      en: 'From one chasing wild adventures up north in the Netherlands, to the other chasing the strike zone down south',
+      year: '2019',
+    },
     {
-      zh: '又一次從澳洲到香港的時空差距 (2023)',
-      en: 'Once again, crossing oceans and time zones between Australia and Hong Kong (2023)',
-    } as Bi,
+      zh: '又一次從澳洲到香港的時空差距',
+      en: 'Once again, crossing time zones between Australia and Hong Kong',
+      year: '2023',
+    },
     {
-      zh: '轉至新加坡和香港的南海阻隔，去年攜手從星回港 (2025)',
-      en: 'Another stretch of distance — from Singapore, hand in hand back to Hong Kong (2025)',
-    } as Bi,
+      zh: '轉至新加坡和香港的南海阻隔，去年攜手從星回港',
+      en: 'Another stretch of distance — from Singapore, hand in hand back to Hong Kong',
+      year: '2025',
+    },
     {
-      zh: '如今，我們要結婚啦！ (2026)',
-      en: 'Cleared for takeoff — and ready for our lifelong flight together! (2026)',
-    } as Bi,
-  ] as Bi[],
+      zh: '如今，我們要結婚啦！',
+      en: 'Cleared for takeoff — and ready for our lifelong flight together!',
+      year: '2026',
+    },
+  ] as StoryEntry[],
 
   // The closing invitation, shown on the passport's back cover. Each entry is
   // its own paragraph (separated by a blank line).
   invite: [
     {
       zh: '誠摯的邀請您一同見證我們的旅程～',
-      en: 'Thank you for being part of our lives and witnessing our journey — with full hearts, we sincerely invite you to celebrate this day with us.',
+      en: 'Thank you for being part of our lives and witnessing our journey — we sincerely invite you to celebrate this day with us.',
     } as Bi,
     {
       zh: '請在下一頁表單，填寫您的旅客資料，搭乘專屬航班前往我們的婚禮吧！',

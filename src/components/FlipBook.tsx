@@ -177,6 +177,7 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
                     <div className="flex flex-col items-center gap-2 px-6 pb-8 text-center">
                       <span className="text-[0.6rem] font-semibold tracking-[0.3em] text-cover-gold uppercase">
                         Chapter {String(index).padStart(2, '0')}
+                        {content.story[storyIndex].year ? ` · ${content.story[storyIndex].year}` : ''}
                       </span>
                       <span className="h-px w-6 bg-cover-gold/50" />
                       <p className={`${serif} text-lg leading-relaxed font-medium text-ink sm:text-xl`}>
