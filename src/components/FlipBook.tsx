@@ -61,15 +61,14 @@ export function FlipBook({ onFinish }: { onFinish: () => void }) {
       transition={{ duration: 1 }}
       className="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden px-4 py-4"
     >
-      {/* flowing gold "Our Wedding" script filling the whole page background,
-          "Our" on top, "Wedding" below, stretched edge to edge */}
+      {/* flowing gold "Colbert & Crystal" script sitting in the top and bottom
+          margins around the passport, so both names stay visible */}
       <div
         aria-hidden
-        className="font-script pointer-events-none absolute inset-0 z-0 flex -translate-y-[7svh] flex-col justify-between py-[15svh] text-cover-gold/15 leading-[0.75] md:translate-y-0 md:py-[3svh]"
+        className="font-script pointer-events-none absolute inset-0 z-0 flex flex-col justify-between py-[3svh] text-cover-gold/15 leading-none"
       >
-        <span className="self-start -ml-[5vw] text-[41vw]">Colbert</span>
-        <span className="self-center text-[24vw] text-cover-gold/20">&amp;</span>
-        <span className="self-end -mr-[5vw] text-[41vw]">Crystal</span>
+        <span className="self-start pl-[5vw] text-[15vw]">Colbert &amp;</span>
+        <span className="self-end pr-[5vw] text-[15vw]">Crystal</span>
       </div>
       <div
         className={`relative z-10 mx-auto ${
