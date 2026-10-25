@@ -1090,7 +1090,74 @@ async function saveFile(name, blob) {
 }
 
 /* ================= share image ================= */
-const share = { open: false, busy: false, dataUrl: '', blob: null, opts: { plan: true, nums: true, left: false } };
+const share = { open: false, busy: false, dataUrl: '', blob: null, opts: { cards: false, nums: true, left: false } };
+
+/* Fit the floor plan to the image width, cropping empty floor, and enlarge every table
+   as far as the gaps to its neighbours (and to the stage, entrance…) allow. */
+function planLayout(width) {
+  const T = state.tables.map(t => ({ t, g: geom(t, 1) })), D = state.decor, M = 14;
+  let k = 3.2;
+  for (let i = 0; i < T.length; i++) {
+    const a = T[i];
+    for (let j = i + 1; j < T.length; j++) {
+      const b = T[j], dx = Math.abs(a.t.x - b.t.x), dy = Math.abs(a.t.y - b.t.y);
+      k = Math.min(k, Math.max((dx - M) / ((a.g.w + b.g.w) / 2), (dy - M) / ((a.g.h + b.g.h) / 2)));
+    }
+    for (const d of D) {
+      const dx = Math.abs(a.t.x - d.x), dy = Math.abs(a.t.y - d.y);
+      k = Math.min(k, Math.max((dx - d.w / 2 - M) / (a.g.w / 2), (dy - d.h / 2 - M) / (a.g.h / 2)));
+    }
+  }
+  k = Math.max(1, k);
+  let s = 1, kk = k;
+  for (let pass = 0; pass < 3; pass++) {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    const box = (x, y, hw, hh) => { minX = Math.min(minX, x - hw); maxX = Math.max(maxX, x + hw); minY = Math.min(minY, y - hh); maxY = Math.max(maxY, y + hh); };
+    T.forEach(({ t, g }) => box(t.x, t.y, g.w / 2 * kk, g.h / 2 * kk));
+    D.forEach(d => box(d.x, d.y, d.w / 2, d.h / 2));
+    if (!isFinite(minX)) { minX = 0; minY = 0; maxX = state.room.w; maxY = state.room.h; }
+    s = width / (maxX - minX);
+    const res = { s, k: kk * s, minX, minY, w: (maxX - minX) * s, h: (maxY - minY) * s };
+    if (17 * kk * s <= 40 || pass === 2) return res;
+    kk = 40 / (17 * s);          // seats no bigger than needed for a full name
+  }
+}
+
+/* Same footprint as geom(), but for the image the seats get the room and the tabletop
+   shrinks: round seats grow until they nearly touch around the ring. */
+function imgGeom(t, K) {
+  const g = geom(t, K);
+  if (t.shape !== 'round') return { ...g, sr: 19 * K };
+  const n = t.seats, outer = g.w / 2 - 3 * K;
+  const sr = Math.min(outer / (n * 1.08 / Math.PI + 1), outer * 0.3), ring = outer - sr, R = Math.max(ring - sr - 6 * K, ring * 0.45);
+  const seats = [];
+  for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * 2 * Math.PI / n; seats.push({ x: Math.cos(a) * ring, y: Math.sin(a) * ring }); }
+  return { w: g.w, h: g.h, top: { w: R * 2, h: R * 2, round: true }, seats, sr };
+}
+
+/* A guest's full name inside a seat circle: one line if it fits, else two. */
+function seatName(ctx, name, x, y, r, child, SANS, C) {
+  const maxW = r * 1.72;
+  let lines = [name];
+  for (let f = Math.round(r * 0.46); f >= 9; f--) {
+    ctx.font = `500 ${f}px ${SANS}`;
+    if (ctx.measureText(name).width <= maxW) { lines = [name]; break; }
+    let two;
+    const sp = name.indexOf(' ') > 0 ? [...name.matchAll(/ /g)].map(m => m.index) : [];
+    if (sp.length) { const mid = name.length / 2, at = sp.reduce((a, b) => (Math.abs(b - mid) < Math.abs(a - mid) ? b : a)); two = [name.slice(0, at), name.slice(at + 1)]; }
+    else {
+      const plus = name.match(/^(.*)(\+\d+)$/);
+      if (plus) two = [plus[1], plus[2]];
+      else if (/[\u3400-\u9fff]/.test(name)) two = [name.slice(0, Math.ceil(name.length / 2)), name.slice(Math.ceil(name.length / 2))];
+      else { lines = [name]; continue; }   // one English word: shrink, never split
+    }
+    if (two.every(l => ctx.measureText(l).width <= maxW * 0.94) && f * 2.3 <= r * 1.6) { lines = two; break; }
+    lines = two;
+  }
+  const f = parseFloat(ctx.font.match(/(\d+(?:\.\d+)?)px/)[1]), lh = f * 1.12;
+  ctx.fillStyle = C.ink;
+  lines.forEach((l, i) => ctx.fillText(fitText(ctx, l, maxW), x, y + (i - (lines.length - 1) / 2) * lh - (child ? 0 : 0)));
+}
 
 function renderShare() {
   const root = $('#shareRoot');
@@ -1100,12 +1167,12 @@ function renderShare() {
     <div class="modal" role="dialog" aria-modal="true" aria-label="分享圖片">
       <div class="modal-head" style="align-items:center">
         <h2 style="font-family:var(--f-serif-tc);font-weight:600;letter-spacing:.06em;margin-right:auto">分享圖片</h2>
-        ${ck('shPlan', 'plan', '包含平面圖')}${ck('shNums', 'nums', '顯示座位號')}${ck('shLeft', 'left', '列出還沒排座位的人')}
+        ${ck('shCards', 'cards', '附上每桌名單')}${share.opts.cards ? ck('shNums', 'nums', '名單顯示座位號') : ''}${ck('shLeft', 'left', '列出還沒排座位的人')}
         <button class="iconbtn" data-act="closeShare" aria-label="關閉">✕</button>
       </div>
       <div class="share-preview">${share.busy || !share.dataUrl ? '<p class="hint">正在產生圖片…</p>' : `<img src="${share.dataUrl}" alt="婚宴座位表圖片">`}</div>
       <div class="modal-foot">
-        <p class="hint">圖片會列出每桌已入座賓客的全名，可以傳到群組請親友確認。手機上也可以長按圖片儲存。</p>
+        <p class="hint">每個座位上寫著賓客全名，可以傳到群組請親友確認。手機上也可以長按圖片儲存。</p>
         <button class="btn primary" data-act="saveShare" ${share.blob ? '' : 'disabled'}>儲存圖片</button>
       </div>
     </div></div>`;
@@ -1147,8 +1214,8 @@ async function drawShareImage(opts) {
   const cardH = t => headH + Math.max(1, seatedRows(t).length) * rowH + 24;
   const gridRows = [];
   for (let i = 0; i < tables.length; i += cols) gridRows.push(tables.slice(i, i + cols));
-  const gridH = gridRows.reduce((h, r) => h + Math.max(...r.map(cardH)) + gap, 0);
-  const s = inner / state.room.w, planH = opts.plan ? state.room.h * s + 70 : 0;
+  const gridH = opts.cards ? gridRows.reduce((h, r) => h + Math.max(...r.map(cardH)) + gap, 0) + 20 : 0;
+  const PP = 36, plan = planLayout(inner - PP * 2), planH = plan.h + PP * 2 + 80;
   const left = unseated();
   const m = document.createElement('canvas').getContext('2d');
   m.font = `400 21px ${SANS}`;
@@ -1162,7 +1229,7 @@ async function drawShareImage(opts) {
   const headerH = 250, footH = 90;
   const H = Math.ceil(P + headerH + planH + gridH + leftH + footH);
 
-  const k = 1.25, cv = document.createElement('canvas');
+  const k = 1.5, cv = document.createElement('canvas');
   cv.width = Math.round(W * k); cv.height = Math.round(H * k);
   const ctx = cv.getContext('2d');
   ctx.scale(k, k);
@@ -1185,47 +1252,61 @@ async function drawShareImage(opts) {
   ctx.beginPath(); ctx.moveTo(W / 2 - 60, y + 208); ctx.lineTo(W / 2 + 60, y + 208); ctx.stroke();
   y += headerH;
 
-  // floor plan
-  if (opts.plan) {
-    const ph = state.room.h * s;
-    rrect(ctx, P, y, inner, ph, 14); ctx.fillStyle = C.floor; ctx.fill(); ctx.strokeStyle = C.lineS; ctx.lineWidth = 2; ctx.stroke();
+  // floor plan: tables enlarged as far as their neighbours allow, names written in full
+  {
+    const L = plan, ox = P + PP + (inner - PP * 2 - L.w) / 2, oy = y + PP;
+    const X = x => ox + (x - L.minX) * L.s, Y = v => oy + (v - L.minY) * L.s;
+    rrect(ctx, P, y, inner, L.h + PP * 2, 18); ctx.fillStyle = C.floor; ctx.fill(); ctx.strokeStyle = C.lineS; ctx.lineWidth = 2; ctx.stroke();
     for (const d of state.decor) {
-      const w = d.w * s, h = d.h * s, x = P + d.x * s - w / 2, yy = y + d.y * s - h / 2;
-      rrect(ctx, x, yy, w, h, 8); ctx.fillStyle = d.kind === 'stage' ? C.accSoft : C.paper; ctx.fill();
-      ctx.setLineDash(d.kind === 'stage' ? [] : [6, 5]); ctx.strokeStyle = d.kind === 'stage' ? C.accent : C.lineS; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = C.deep; ctx.font = `600 ${Math.max(12, Math.min(24, h * 0.42, w / Math.max(2, d.label.length) * 0.8))}px ${SERIF}`;
+      const w = d.w * L.s, h = d.h * L.s, x = X(d.x) - w / 2, yy = Y(d.y) - h / 2;
+      rrect(ctx, x, yy, w, h, 10); ctx.fillStyle = d.kind === 'stage' ? C.accSoft : C.paper; ctx.fill();
+      ctx.setLineDash(d.kind === 'stage' ? [] : [8, 6]); ctx.strokeStyle = d.kind === 'stage' ? C.accent : C.lineS; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = C.deep; ctx.font = `600 ${Math.max(14, Math.min(34, h * 0.42, w / Math.max(2, d.label.length) * 0.8))}px ${SERIF}`;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = d.kind === 'stage' ? '10px' : '2px';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(d.label, x + w / 2, yy + h / 2); ctx.textBaseline = 'alphabetic';
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
     }
     for (const t of tables) {
-      const g = geom(t), cx = P + t.x * s, cy = y + t.y * s;
+      const g = imgGeom(t, L.k), cx = X(t.x), cy = Y(t.y), row = o[t.id];
+      if (g.top.round) { ctx.beginPath(); ctx.arc(cx, cy, g.top.w / 2, 0, Math.PI * 2); } else rrect(ctx, cx - g.top.w / 2, cy - g.top.h / 2, g.top.w, g.top.h, 12);
+      ctx.fillStyle = C.paper; ctx.fill(); ctx.strokeStyle = C.lineS; ctx.lineWidth = 2; ctx.stroke();
       g.seats.forEach((p, i) => {
-        const gid = o[t.id][i];
-        ctx.beginPath(); ctx.arc(cx + p.x * s, cy + p.y * s, g.sr * s, 0, Math.PI * 2);
-        ctx.fillStyle = gid ? groupColor(G[gid].group) : C.paper; ctx.fill();
-        ctx.strokeStyle = gid ? 'rgba(75,63,53,.25)' : C.lineS; ctx.lineWidth = 1; ctx.stroke();
+        const gid = row[i], guest = gid && G[gid], sx = cx + p.x, sy = cy + p.y, r = g.sr;
+        ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2);
+        ctx.fillStyle = guest ? groupColor(guest.group) : C.paper; ctx.fill();
+        if (guest?.child) { ctx.strokeStyle = C.accent; ctx.lineWidth = 3; ctx.stroke(); ctx.beginPath(); ctx.arc(sx, sy, r - 5, 0, Math.PI * 2); ctx.lineWidth = 1.5; ctx.stroke(); }
+        else { ctx.setLineDash(guest ? [] : [5, 4]); ctx.strokeStyle = guest ? 'rgba(75,63,53,.28)' : C.lineS; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        if (!guest) { ctx.fillStyle = C.faint; ctx.font = `400 ${Math.round(r * 0.5)}px ${SANS}`; ctx.fillText(String(i + 1), sx, sy); }
+        else seatName(ctx, guest.name, sx, sy, r, guest.child, SANS, C);
+        ctx.textBaseline = 'alphabetic';
       });
-      if (g.top.round) { ctx.beginPath(); ctx.arc(cx, cy, g.top.w / 2 * s, 0, Math.PI * 2); } else rrect(ctx, cx - g.top.w / 2 * s, cy - g.top.h / 2 * s, g.top.w * s, g.top.h * s, 8);
-      ctx.fillStyle = C.paper; ctx.fill(); ctx.strokeStyle = C.lineS; ctx.lineWidth = 1.5; ctx.stroke();
-      const word = !isNumName(t.name) && !isLetterName(t.name);
+      const word = !isNumName(t.name) && !isLetterName(t.name), th = Math.min(g.top.h, g.top.w);
+      const n = row.filter(Boolean).length, kids = kidsIn(row, G);
       ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = word ? `600 ${Math.round(g.top.h * s * 0.22)}px ${SERIF}` : `700 ${Math.round(g.top.h * s * 0.42)}px ${DISPLAY}`;
-      ctx.fillText(t.name, cx, cy); ctx.textBaseline = 'alphabetic';
+      ctx.font = word ? `600 ${Math.round(th * 0.2)}px ${SERIF}` : `700 ${Math.round(th * 0.38)}px ${DISPLAY}`;
+      ctx.fillText(fitText(ctx, t.name, g.top.w * 0.8), cx, cy - th * 0.08);
+      ctx.fillStyle = C.soft; ctx.font = `400 ${Math.round(Math.max(17, th * 0.085))}px ${SANS}`;
+      ctx.fillText(n ? `${n - kids} 位${kids ? ` + 兒童椅 ${kids}` : ''}` : '尚未安排', cx, cy + th * 0.22);
+      ctx.textBaseline = 'alphabetic';
     }
     // legend
-    const gs = groups();
-    ctx.font = `400 19px ${SANS}`; ctx.textAlign = 'left';
-    const items = gs.map(g => ({ g, w: 22 + ctx.measureText(groupLabel(g)).width + 28 }));
+    ctx.font = `400 20px ${SANS}`; ctx.textAlign = 'left';
+    const items = groups().map(g => ({ label: groupLabel(g), color: groupColor(g), w: 24 + ctx.measureText(groupLabel(g)).width + 30 }));
+    if (state.guests.some(g => g.child)) items.push({ label: '兒童椅（不算用餐）', child: true, w: 24 + ctx.measureText('兒童椅（不算用餐）').width + 30 });
     let lx = W / 2 - items.reduce((a, b) => a + b.w, 0) / 2;
-    const ly = y + ph + 40;
+    const ly = y + L.h + PP * 2 + 42;
     for (const it of items) {
-      ctx.beginPath(); ctx.arc(lx + 8, ly - 6, 8, 0, Math.PI * 2); ctx.fillStyle = groupColor(it.g); ctx.fill();
-      ctx.fillStyle = C.soft; ctx.fillText(groupLabel(it.g), lx + 22, ly); lx += it.w;
+      ctx.beginPath(); ctx.arc(lx + 9, ly - 7, 9, 0, Math.PI * 2);
+      if (it.child) { ctx.fillStyle = C.paper; ctx.fill(); ctx.strokeStyle = C.accent; ctx.lineWidth = 3; ctx.stroke(); } else { ctx.fillStyle = it.color; ctx.fill(); }
+      ctx.fillStyle = C.soft; ctx.fillText(it.label, lx + 24, ly); lx += it.w;
     }
     y += planH;
   }
 
   // table cards
-  for (const row of gridRows) {
+  if (opts.cards) y += 20;
+  for (const row of opts.cards ? gridRows : []) {
     const rh = Math.max(...row.map(cardH));
     row.forEach((t, c) => {
       const x = P + c * (cw + gap), list = seatedRows(t), kids = list.filter(r => r.g.child).length;
@@ -1421,8 +1502,8 @@ document.addEventListener('change', e => {
     toast(t.checked ? `${g.name} 改成兒童椅，不算用餐人數` : `${g.name} 改回一般座位`);
     return;
   }
-  if (t.id === 'shPlan' || t.id === 'shNums' || t.id === 'shLeft') {
-    share.opts[{ shPlan: 'plan', shNums: 'nums', shLeft: 'left' }[t.id]] = t.checked;
+  if (t.id === 'shCards' || t.id === 'shNums' || t.id === 'shLeft') {
+    share.opts[{ shCards: 'cards', shNums: 'nums', shLeft: 'left' }[t.id]] = t.checked;
     makeShareImage(); return;
   }
   if (t.dataset.gf) {
