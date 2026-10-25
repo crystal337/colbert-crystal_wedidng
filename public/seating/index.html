@@ -148,6 +148,11 @@ table.glist { width: 100%; border-collapse: collapse; min-width: 560px; }
 
 .seat { position: absolute; border-radius: 50%; display: grid; place-items: center; text-align: center; background: var(--paper); border: 1.5px dashed var(--line-strong); color: var(--ink-faint); font-size: 10px; line-height: 1.1; overflow: hidden; white-space: nowrap; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: box-shadow .1s, transform .1s; }
 .seat.filled { border-style: solid; border-color: rgba(75, 63, 53, .28); background: var(--g); color: var(--ink); cursor: grab; touch-action: none; }
+.seat.filled.child { border: 3px double var(--accent); }
+.kidtag { color: var(--accent-deep) !important; }
+.glist td.kid { text-align: center; width: 60px; }
+.share-preview { background: var(--floor); padding: 16px; overflow: auto; max-height: 68dvh; text-align: center; }
+.share-preview img { max-width: 100%; height: auto; box-shadow: var(--shadow); border-radius: 6px; }
 .seat.drop-hover { box-shadow: 0 0 0 3px var(--rose); transform: scale(1.12); z-index: 2; }
 .seat.dragging-src { opacity: .35; }
 .seat.big { font-size: 12.5px; white-space: normal; line-height: 1.2; padding: 6px; word-break: break-all; }
@@ -242,6 +247,7 @@ table.glist { width: 100%; border-collapse: collapse; min-width: 560px; }
   <main id="main"></main>
 </div>
 <div id="modalRoot"></div>
+<div id="shareRoot"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -381,7 +387,7 @@ const stable = v => JSON.stringify(v, (k, x) => x && typeof x === 'object' && !A
 
 function docsOf(st) {
   const m = new Map();
-  st.guests.forEach((g, i) => { const a = st.seat[g.id]; m.set('guests/' + g.id, { name: g.name, group: g.group || '', note: g.note || '', order: g.order ?? i, t: a ? a.t : null, s: a ? a.s : null }); });
+  st.guests.forEach((g, i) => { const a = st.seat[g.id]; const body = { name: g.name, group: g.group || '', note: g.note || '', order: g.order ?? i, t: a ? a.t : null, s: a ? a.s : null }; if (g.child) body.child = true; m.set('guests/' + g.id, body); });
   st.tables.forEach(t => m.set('tables/' + t.id, { name: t.name, note: t.note || '', shape: t.shape, seats: t.seats, x: t.x, y: t.y }));
   st.decor.forEach(d => m.set('decor/' + d.id, { kind: d.kind, label: d.label, x: d.x, y: d.y, w: d.w, h: d.h }));
   m.set('meta/plan', { room: { w: st.room.w, h: st.room.h } });
@@ -449,7 +455,7 @@ function buildFromRemote() {
   const plan = view('meta').get('plan');
   if (plan?.room) s.room = { w: clamp(num(plan.room.w, 1400), 400, 5000), h: clamp(num(plan.room.h, 900), 300, 5000) };
   for (const [id, d] of view('guests')) {
-    s.guests.push({ id, name: str(d.name) || '?', group: str(d.group), note: str(d.note), order: num(d.order, 0) });
+    s.guests.push({ id, name: str(d.name) || '?', group: str(d.group), note: str(d.note), order: num(d.order, 0), ...(d.child === true ? { child: true } : {}) });
     if (d.t != null && d.s != null) s.seat[id] = { t: String(d.t), s: num(d.s, 0) };
   }
   s.guests.sort((a, b) => a.order - b.order || (a.id < b.id ? -1 : 1));
@@ -514,7 +520,7 @@ function parseGuests(text) {
     let extra = 0;
     const m = name.match(/^(.*?)\s*[+＋]\s*(\d{1,2})$/);
     if (m && m[1]) { name = m[1].trim(); extra = Math.min(+m[2], 20); }
-    out.push({ name, group, note });
+    out.push(/兒童椅/.test(note) ? { name, group, note, child: true } : { name, group, note });
     for (let i = 1; i <= extra; i++) out.push({ name: `${name}+${i}`, group, note: '同行' });
   }
   return out;
@@ -535,6 +541,10 @@ function groupColor(group) {
 const groupLabel = g => g || '未分組';
 
 function tLabel(t) { return isNumName(t.name) ? `第 ${t.name} 桌` : isLetterName(t.name) ? `${t.name.toUpperCase()} 桌` : (t.name || '未命名'); }
+
+// A child seat takes a chair but is not counted as a meal.
+const kidsIn = (row, G) => row.filter(id => id && G[id]?.child).length;
+const noteText = g => (g.child && g.note === '兒童椅' ? '' : g.note || '');
 
 /* Seat occupancy per table; drops dangling assignments. */
 function occ() {
@@ -713,7 +723,7 @@ function headerHTML() {
   <div class="brand"><div class="mono">C&amp;C</div><div><h1>婚宴座位安排</h1><p>Colbert &amp; Crystal · Seating Plan</p></div></div>
   <nav class="steps" aria-label="步驟">${STEPS.map(([k, l, s], i) => `<button class="step ${ui.step === k ? 'on' : ''}" data-act="step" data-step="${k}"><span class="n">${i + 1}</span><span class="lbl-long">${l}</span><span class="lbl-short">${s}</span></button>`).join('')}</nav>
   <div class="top-right">
-    <div class="stats"><span>賓客 <b>${total}</b></span><span>已入座 <b>${seated}</b></span><span>未入座 <b>${total - seated}</b></span><span>${state.tables.length} 桌 · <b>${cap}</b> 個座位</span></div>
+    <div class="stats"><span>賓客 <b>${total}</b></span><span>用餐 <b>${total - state.guests.filter(g => g.child).length}</b></span><span>已入座 <b>${seated}</b></span><span>未入座 <b>${total - seated}</b></span><span>${state.tables.length} 桌 · <b>${cap}</b> 個座位</span></div>
     <button class="btn small" data-act="undo" ${history.length ? '' : 'disabled'} title="Ctrl/⌘ + Z">↶ 復原</button>
     <span class="saved ${sync.shared ? 'live' : ''}" id="savedNote">${savedNote()}</span>
   </div>`;
@@ -801,13 +811,14 @@ function guestRowsHTML() {
   state.guests.forEach(g => nameCount.set(g.name, (nameCount.get(g.name) || 0) + 1));
   const rows = state.guests.map((g, i) => ({ g, i })).filter(({ g }) => matches(g, ui.gSearch) && (ui.gFilter === '' || (g.group || '') === ui.gFilter));
   if (!rows.length) return `<div class="empty">找不到符合的賓客</div>`;
-  return `<table class="glist"><thead><tr><th>#</th><th>姓名</th><th>分組</th><th>備註</th><th>座位</th><th></th></tr></thead><tbody>${rows.map(({ g, i }) => {
+  return `<table class="glist"><thead><tr><th>#</th><th>姓名</th><th>分組</th><th>備註</th><th title="佔一個座位，但不算用餐人數">兒童椅</th><th>座位</th><th></th></tr></thead><tbody>${rows.map(({ g, i }) => {
     const a = state.seat[g.id], t = a && tById(a.t);
     return `<tr class="${nameCount.get(g.name) > 1 ? 'dup' : ''}">
       <td class="idx">${i + 1}</td>
       <td><input type="text" data-gf="name" data-id="${g.id}" value="${esc(g.name)}" aria-label="姓名" ${nameCount.get(g.name) > 1 ? 'title="名單裡有同名的賓客"' : ''}></td>
       <td><div class="gcell"><span class="dot" style="--g:${groupColor(g.group)}"></span><input type="text" data-gf="group" data-id="${g.id}" value="${esc(g.group)}" list="groupList" placeholder="未分組" aria-label="分組"></div></td>
       <td><input type="text" data-gf="note" data-id="${g.id}" value="${esc(g.note)}" placeholder="—" aria-label="備註"></td>
+      <td class="kid"><input type="checkbox" data-child data-id="${g.id}" ${g.child ? 'checked' : ''} aria-label="${esc(g.name)} 坐兒童椅"></td>
       <td class="where">${t ? `${esc(tLabel(t))} · ${a.s + 1} 號` : '未入座'}</td>
       <td><button class="iconbtn" data-act="delGuest" data-id="${g.id}" title="刪除 ${esc(g.name)}" aria-label="刪除 ${esc(g.name)}">✕</button></td>
     </tr>`;
@@ -862,7 +873,7 @@ function canvasHTML(mode) {
   const title = mode === 'layout' ? '平面圖 · 拖曳桌子調整位置' : '平面圖 · 把賓客拖到桌上，點桌子可以細調座位';
   return `<section class="panel canvas-panel">
     <div class="canvas-bar"><span class="title">${title}</span>
-      <button class="iconbtn" data-act="zoom" data-d="-1" aria-label="縮小">−</button><span class="zoom">${Math.round(s * 100)}%</span><button class="iconbtn" data-act="zoom" data-d="1" aria-label="放大">+</button><button class="btn small" data-act="fit">符合畫面</button>
+      <button class="iconbtn" data-act="zoom" data-d="-1" aria-label="縮小">−</button><span class="zoom">${Math.round(s * 100)}%</span><button class="iconbtn" data-act="zoom" data-d="1" aria-label="放大">+</button><button class="btn small" data-act="fit">符合畫面</button>${mode === 'assign' ? '<button class="btn small" data-act="openShare">分享圖片</button>' : ''}
     </div>
     <div class="floor-scroll" id="floorScroll"><div class="floor-size" style="width:${w * s}px;height:${h * s}px">
       <div class="floor ${mode}" id="floor" style="width:${w}px;height:${h}px;transform:scale(${s})">${floorInnerHTML(mode)}</div>
@@ -878,7 +889,7 @@ function floorInnerHTML(mode) {
 }
 
 function tableHTML(t, row, G, mode, k) {
-  const g = geom(t, k), filled = row.filter(Boolean).length, big = k > 1;
+  const g = geom(t, k), filled = row.filter(Boolean).length, big = k > 1, kids = kidsIn(row, G);
   const assign = mode === 'assign' || big;
   const attrs = big ? `data-drop="table" data-table="${t.id}"`
     : mode === 'layout' ? `data-move="table" data-id="${t.id}"`
@@ -889,9 +900,9 @@ function tableHTML(t, row, G, mode, k) {
     const drop = assign ? `data-drop="seat" data-table="${t.id}" data-seat="${i}"` : '';
     const drag = guest && assign ? `data-drag="seat" data-id="${gid}"` : '';
     let inner;
-    if (big) inner = `<span class="no">${i + 1}</span>${guest ? `<span class="nm">${esc(guest.name)}${guest.note ? `<span class="nt">${esc(guest.note)}</span>` : ''}</span>` : ''}`;
+    if (big) inner = `<span class="no">${i + 1}</span>${guest ? `<span class="nm">${esc(guest.name)}${guest.child ? '<span class="nt kidtag">兒童椅</span>' : ''}${noteText(guest) ? `<span class="nt">${esc(noteText(guest))}</span>` : ''}</span>` : ''}`;
     else inner = guest ? esc(shortName(guest.name)) : `<span class="no">${i + 1}</span>`;
-    return `<div class="seat ${guest ? 'filled' : ''} ${big ? 'big' : ''}" style="${style}" ${drop} ${drag} ${guest ? `title="${i + 1} 號 · ${esc(guest.name)}${guest.group ? ' · ' + esc(guest.group) : ''}"` : ''}>${inner}</div>`;
+    return `<div class="seat ${guest ? 'filled' : ''} ${guest?.child ? 'child' : ''} ${big ? 'big' : ''}" style="${style}" ${drop} ${drag} ${guest ? `title="${i + 1} 號 · ${esc(guest.name)}${guest.group ? ' · ' + esc(guest.group) : ''}${guest.child ? ' · 兒童椅（不算用餐）' : ''}"` : ''}>${inner}</div>`;
   }).join('');
   const word = !isNumName(t.name) && !isLetterName(t.name);
   const pos = big ? '' : `left:${t.x}px;top:${t.y}px;`;
@@ -899,7 +910,7 @@ function tableHTML(t, row, G, mode, k) {
     <div class="tbl-top ${g.top.round ? 'round' : 'rect'}" style="width:${g.top.w}px;height:${g.top.h}px">
       <span class="tbl-num ${word ? 'word' : ''}">${esc(t.name || '?')}</span>
       ${t.note && (g.top.h > 70 || !g.top.round) ? `<span class="tbl-sub">${esc(t.note)}</span>` : ''}
-      <span class="cnt ${filled === t.seats ? 'full' : ''}">${filled}/${t.seats}</span>
+      <span class="cnt ${filled === t.seats ? 'full' : ''}">${filled}/${t.seats}</span>${kids ? `<span class="tbl-sub">用餐 ${filled - kids}</span>` : ''}
     </div>${seats}</div>`;
 }
 
@@ -928,7 +939,7 @@ function poolListHTML(q, filter) {
   const by = new Map();
   for (const g of list) { const k = g.group || ''; if (!by.has(k)) by.set(k, []); by.get(k).push(g); }
   return [...by].map(([grp, gs]) => `<div class="ghead" style="--g:${groupColor(grp)}"><span class="dot"></span>${esc(groupLabel(grp))} · ${gs.length}<button class="btn small quiet" data-act="selGroup" data-group="${esc(grp)}">全選</button></div>
-    <div class="chips">${gs.map(g => `<div class="chip ${ui.sel.has(g.id) ? 'sel' : ''}" tabindex="0" role="button" aria-pressed="${ui.sel.has(g.id)}" data-drag="pool" data-act="selToggle" data-id="${g.id}" style="--g:${groupColor(g.group)}"><span class="dot"></span><span>${esc(g.name)}</span>${g.note ? `<span class="nt">${esc(g.note)}</span>` : ''}</div>`).join('')}</div>`).join('');
+    <div class="chips">${gs.map(g => `<div class="chip ${ui.sel.has(g.id) ? 'sel' : ''}" tabindex="0" role="button" aria-pressed="${ui.sel.has(g.id)}" data-drag="pool" data-act="selToggle" data-id="${g.id}" style="--g:${groupColor(g.group)}"><span class="dot"></span><span>${esc(g.name)}</span>${g.child || noteText(g) ? `<span class="nt">${[g.child ? '兒童椅' : '', noteText(g)].filter(Boolean).map(esc).join(' · ')}</span>` : ''}</div>`).join('')}</div>`).join('');
 }
 
 /* ---------- table modal ---------- */
@@ -973,31 +984,31 @@ function sortedTables() {
 }
 function csvText() {
   const o = occ(), G = gById(), q = v => /[",\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : v;
-  const lines = [['桌號', '桌位備註', '座位', '姓名', '分組', '賓客備註'].join(',')];
-  for (const t of sortedTables()) o[t.id].forEach((gid, i) => { if (gid) { const g = G[gid]; lines.push([t.name, t.note || '', i + 1, g.name, g.group || '', g.note || ''].map(q).join(',')); } });
-  unseated().forEach(g => lines.push(['未入座', '', '', g.name, g.group || '', g.note || ''].map(q).join(',')));
+  const lines = [['桌號', '桌位備註', '座位', '姓名', '分組', '兒童椅', '賓客備註'].join(',')];
+  for (const t of sortedTables()) o[t.id].forEach((gid, i) => { if (gid) { const g = G[gid]; lines.push([t.name, t.note || '', i + 1, g.name, g.group || '', g.child ? '是' : '', noteText(g)].map(q).join(',')); } });
+  unseated().forEach(g => lines.push(['未入座', '', '', g.name, g.group || '', g.child ? '是' : '', noteText(g)].map(q).join(',')));
   return lines.join('\n');
 }
 function overviewHTML() {
   const o = occ(), G = gById(), left = unseated();
   const cards = sortedTables().map(t => {
-    const row = o[t.id], n = row.filter(Boolean).length;
-    return `<article class="ov-card"><h3>${esc(tLabel(t))}<span class="cnt ${n === t.seats ? 'full' : ''}">${n}/${t.seats}</span></h3>
+    const row = o[t.id], n = row.filter(Boolean).length, kids = kidsIn(row, G);
+    return `<article class="ov-card"><h3>${esc(tLabel(t))}<span class="cnt ${n === t.seats ? 'full' : ''}">${n}/${t.seats}${kids ? ` · 用餐 ${n - kids}` : ''}</span></h3>
       ${t.note ? `<div class="sub">${esc(t.note)}</div>` : ''}
-      <ol>${row.map((gid, i) => { const g = gid && G[gid]; return g ? `<li><span class="sn">${i + 1}</span><span class="dot" style="--g:${groupColor(g.group)}"></span><span>${esc(g.name)}${g.note ? `<span class="nt">${esc(g.note)}</span>` : ''}</span></li>` : `<li class="emp"><span class="sn">${i + 1}</span><span></span><span>空位</span></li>`; }).join('')}</ol></article>`;
+      <ol>${row.map((gid, i) => { const g = gid && G[gid]; return g ? `<li><span class="sn">${i + 1}</span><span class="dot" style="--g:${groupColor(g.group)}"></span><span>${esc(g.name)}${g.child ? '<span class="nt kidtag">兒童椅</span>' : ''}${noteText(g) ? `<span class="nt">${esc(noteText(g))}</span>` : ''}</span></li>` : `<li class="emp"><span class="sn">${i + 1}</span><span></span><span>空位</span></li>`; }).join('')}</ol></article>`;
   }).join('');
   return `<section>
     <div class="row no-print" style="margin-top:16px;justify-content:space-between">
       <div class="gchips" style="margin:0">${groups().map(g => `<span class="gchip" style="--g:${groupColor(g)};cursor:default"><span class="dot"></span>${esc(groupLabel(g))}</span>`).join('')}</div>
-      ${IFRAMED ? '' : '<button class="btn" data-act="print">列印座位表</button>'}
+      <div class="row"><button class="btn primary" data-act="openShare">產生分享圖片</button>${IFRAMED ? '' : '<button class="btn" data-act="print">列印座位表</button>'}</div>
     </div>
     ${state.tables.length ? `<div class="ov-grid">${cards}</div>` : `<div class="panel empty" style="margin-top:16px">還沒有桌子，先到「桌位配置」建立。</div>`}
     ${left.length ? `<div class="panel" style="margin-top:12px"><h2>未入座 <small>${left.length} 位</small></h2><p style="margin:8px 0 0">${left.map(g => esc(g.name)).join('、')}</p></div>` : ''}
     <div class="export no-print">
       <div class="panel"><h2>座位表 CSV</h2><p class="hint">可以貼到 Excel / Google Sheet，或給場地與婚顧。</p><textarea id="csvOut" readonly>${esc(csvText())}</textarea>
-        <div class="row" style="margin-top:8px"><button class="btn small" data-act="copy" data-src="csvOut">複製</button>${IFRAMED ? '' : '<button class="btn small" data-act="download" data-kind="csv">下載 .csv</button>'}</div></div>
+        <div class="row" style="margin-top:8px"><button class="btn small" data-act="copy" data-src="csvOut">複製</button><button class="btn small" data-act="download" data-kind="csv">下載 .csv</button></div></div>
       <div class="panel"><h2>備份</h2><p class="hint">${sync.shared ? '共用版的資料存在雲端，大家看到同一份。想留一份某個時間點的版本，可以複製下面的備份存起來。' : '資料只存在這台裝置的瀏覽器。換電腦或清除瀏覽紀錄前，先複製備份存起來；要還原時貼回下面再按「匯入備份」。'}</p><textarea id="jsonOut" readonly>${esc(JSON.stringify(state))}</textarea>
-        <div class="row" style="margin-top:8px"><button class="btn small" data-act="copy" data-src="jsonOut">複製備份</button>${IFRAMED ? '' : '<button class="btn small" data-act="download" data-kind="json">下載備份檔</button>'}</div></div>
+        <div class="row" style="margin-top:8px"><button class="btn small" data-act="copy" data-src="jsonOut">複製備份</button><button class="btn small" data-act="download" data-kind="json">下載備份檔</button></div></div>
       <div class="panel"><h2>匯入備份</h2><p class="hint">會取代目前所有名單、桌位和座位${sync.shared ? '，共用版也會一起改變' : ''}。</p><textarea id="jsonIn" placeholder="把備份文字貼在這裡"></textarea>
         <div class="row" style="margin-top:8px"><button class="btn small" data-act="importJSON" data-confirm="會取代目前資料，再按一次">匯入備份</button><label class="btn small file">讀取備份檔<input type="file" id="fileBackup" accept=".json,application/json"></label></div></div>
     </div>
@@ -1056,11 +1067,208 @@ async function copyFrom(id) {
 function download(kind) {
   const stamp = new Date().toISOString().slice(0, 10);
   const data = kind === 'csv' ? '﻿' + csvText() : JSON.stringify(state, null, 1);
-  const blob = new Blob([data], { type: kind === 'csv' ? 'text/csv' : 'application/json' });
+  saveFile(kind === 'csv' ? `座位表-${stamp}.csv` : `座位備份-${stamp}.json`, new Blob([data], { type: kind === 'csv' ? 'text/csv' : 'application/json' }));
+}
+
+let downloadsP = null;
+function getDownloads() {
+  if (!downloadsP) downloadsP = window.claude && typeof window.claude.use === 'function' ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+  return downloadsP;
+}
+async function saveFile(name, blob) {
+  const dl = await getDownloads();
+  if (dl) {
+    try { await dl.save({ filename: name, data: blob }); toast('已儲存'); }
+    catch (e) { if (e?.code !== 'declined') toast(e?.code === 'rate_limited' ? '稍等一下再按一次' : '這裡沒辦法下載，請改用複製或長按圖片儲存'); }
+    return;
+  }
+  if (IFRAMED) { toast('這裡沒辦法下載，請改用複製或長按圖片儲存'); return; }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = kind === 'csv' ? `座位表-${stamp}.csv` : `座位備份-${stamp}.json`;
+  a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ================= share image ================= */
+const share = { open: false, busy: false, dataUrl: '', blob: null, opts: { plan: true, nums: true, left: false } };
+
+function renderShare() {
+  const root = $('#shareRoot');
+  if (!share.open) { root.innerHTML = ''; return; }
+  const ck = (id, key, label) => `<label class="check"><input type="checkbox" id="${id}" ${share.opts[key] ? 'checked' : ''}> ${label}</label>`;
+  root.innerHTML = `<div class="modal-back" data-act="closeShare">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="分享圖片">
+      <div class="modal-head" style="align-items:center">
+        <h2 style="font-family:var(--f-serif-tc);font-weight:600;letter-spacing:.06em;margin-right:auto">分享圖片</h2>
+        ${ck('shPlan', 'plan', '包含平面圖')}${ck('shNums', 'nums', '顯示座位號')}${ck('shLeft', 'left', '列出還沒排座位的人')}
+        <button class="iconbtn" data-act="closeShare" aria-label="關閉">✕</button>
+      </div>
+      <div class="share-preview">${share.busy || !share.dataUrl ? '<p class="hint">正在產生圖片…</p>' : `<img src="${share.dataUrl}" alt="婚宴座位表圖片">`}</div>
+      <div class="modal-foot">
+        <p class="hint">圖片會列出每桌已入座賓客的全名，可以傳到群組請親友確認。手機上也可以長按圖片儲存。</p>
+        <button class="btn primary" data-act="saveShare" ${share.blob ? '' : 'disabled'}>儲存圖片</button>
+      </div>
+    </div></div>`;
+}
+
+async function makeShareImage() {
+  share.busy = true; renderShare();
+  try {
+    const canvas = await drawShareImage(share.opts);
+    share.dataUrl = canvas.toDataURL('image/png');
+    share.blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+  } catch (e) { toast('圖片產生失敗，請再試一次'); }
+  share.busy = false; renderShare();
+}
+
+function fitText(ctx, text, max) {
+  if (ctx.measureText(text).width <= max) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(t + '…').width > max) t = t.slice(0, -1);
+  return t + '…';
+}
+function rrect(ctx, x, y, w, h, r) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h); }
+
+async function drawShareImage(opts) {
+  const o = occ(), G = gById(), tables = sortedTables();
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const C = { bg: css('--bg'), paper: css('--paper'), floor: css('--floor'), line: css('--line'), lineS: css('--line-strong'), ink: css('--ink'), soft: css('--ink-soft'), faint: css('--ink-faint'), accent: css('--accent'), deep: css('--accent-deep'), accSoft: css('--accent-soft') };
+  const SERIF = '"Noto Serif TC", "Songti TC", serif', SANS = '"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif', DISPLAY = '"Cormorant Garamond", Georgia, serif';
+  const text = state.guests.map(g => g.name + g.note).join('') + tables.map(t => tLabel(t) + t.note).join('') + state.decor.map(d => d.label).join('') + groups().join('') + '婚宴座位表位用餐兒童椅如需調整請告訴我們尚未安排座位更新於桌賓客';
+  try {
+    await Promise.race([Promise.all([
+      document.fonts.load(`600 40px ${SERIF}`, text), document.fonts.load(`400 20px ${SANS}`, text), document.fonts.load(`500 20px ${SANS}`, text),
+      document.fonts.load(`600 40px ${DISPLAY}`, 'Colbert & Crystal0123456789'), document.fonts.load(`700 40px ${DISPLAY}`, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+    ]), new Promise(r => setTimeout(r, 5000))]);
+  } catch {}
+
+  const W = 1600, P = 70, inner = W - P * 2, gap = 24, cols = 4, cw = (inner - gap * (cols - 1)) / cols, rowH = 38, headH = 100;
+  const seatedRows = t => o[t.id].map((gid, i) => gid && { g: G[gid], i }).filter(Boolean);
+  const cardH = t => headH + Math.max(1, seatedRows(t).length) * rowH + 24;
+  const gridRows = [];
+  for (let i = 0; i < tables.length; i += cols) gridRows.push(tables.slice(i, i + cols));
+  const gridH = gridRows.reduce((h, r) => h + Math.max(...r.map(cardH)) + gap, 0);
+  const s = inner / state.room.w, planH = opts.plan ? state.room.h * s + 70 : 0;
+  const left = unseated();
+  const m = document.createElement('canvas').getContext('2d');
+  m.font = `400 21px ${SANS}`;
+  const leftLines = [];
+  if (opts.left && left.length) {
+    let line = '';
+    for (const g of left) { const part = (line ? '、' : '') + g.name; if (m.measureText(line + part).width > inner - 40) { leftLines.push(line); line = g.name; } else line += part; }
+    if (line) leftLines.push(line);
+  }
+  const leftH = leftLines.length ? 90 + leftLines.length * 34 + 30 : 0;
+  const headerH = 250, footH = 90;
+  const H = Math.ceil(P + headerH + planH + gridH + leftH + footH);
+
+  const k = 1.25, cv = document.createElement('canvas');
+  cv.width = Math.round(W * k); cv.height = Math.round(H * k);
+  const ctx = cv.getContext('2d');
+  ctx.scale(k, k);
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  ctx.textBaseline = 'alphabetic';
+
+  // header
+  let y = P;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = C.deep; ctx.font = `600 66px ${DISPLAY}`;
+  ctx.fillText('Colbert & Crystal', W / 2, y + 62);
+  ctx.fillStyle = C.ink; ctx.font = `600 42px ${SERIF}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '12px';
+  ctx.fillText('婚宴座位表', W / 2 + 6, y + 128);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  const seated = Object.keys(state.seat).length, seatedKids = state.guests.filter(g => g.child && state.seat[g.id]).length;
+  ctx.fillStyle = C.soft; ctx.font = `400 22px ${SANS}`;
+  ctx.fillText(`${tables.length} 桌 · ${seated - seatedKids} 位用餐${seatedKids ? ` · 兒童椅 ${seatedKids}` : ''} · 如需調整請告訴我們`, W / 2, y + 176);
+  ctx.strokeStyle = C.lineS; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(W / 2 - 60, y + 208); ctx.lineTo(W / 2 + 60, y + 208); ctx.stroke();
+  y += headerH;
+
+  // floor plan
+  if (opts.plan) {
+    const ph = state.room.h * s;
+    rrect(ctx, P, y, inner, ph, 14); ctx.fillStyle = C.floor; ctx.fill(); ctx.strokeStyle = C.lineS; ctx.lineWidth = 2; ctx.stroke();
+    for (const d of state.decor) {
+      const w = d.w * s, h = d.h * s, x = P + d.x * s - w / 2, yy = y + d.y * s - h / 2;
+      rrect(ctx, x, yy, w, h, 8); ctx.fillStyle = d.kind === 'stage' ? C.accSoft : C.paper; ctx.fill();
+      ctx.setLineDash(d.kind === 'stage' ? [] : [6, 5]); ctx.strokeStyle = d.kind === 'stage' ? C.accent : C.lineS; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = C.deep; ctx.font = `600 ${Math.max(12, Math.min(24, h * 0.42, w / Math.max(2, d.label.length) * 0.8))}px ${SERIF}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(d.label, x + w / 2, yy + h / 2); ctx.textBaseline = 'alphabetic';
+    }
+    for (const t of tables) {
+      const g = geom(t), cx = P + t.x * s, cy = y + t.y * s;
+      g.seats.forEach((p, i) => {
+        const gid = o[t.id][i];
+        ctx.beginPath(); ctx.arc(cx + p.x * s, cy + p.y * s, g.sr * s, 0, Math.PI * 2);
+        ctx.fillStyle = gid ? groupColor(G[gid].group) : C.paper; ctx.fill();
+        ctx.strokeStyle = gid ? 'rgba(75,63,53,.25)' : C.lineS; ctx.lineWidth = 1; ctx.stroke();
+      });
+      if (g.top.round) { ctx.beginPath(); ctx.arc(cx, cy, g.top.w / 2 * s, 0, Math.PI * 2); } else rrect(ctx, cx - g.top.w / 2 * s, cy - g.top.h / 2 * s, g.top.w * s, g.top.h * s, 8);
+      ctx.fillStyle = C.paper; ctx.fill(); ctx.strokeStyle = C.lineS; ctx.lineWidth = 1.5; ctx.stroke();
+      const word = !isNumName(t.name) && !isLetterName(t.name);
+      ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = word ? `600 ${Math.round(g.top.h * s * 0.22)}px ${SERIF}` : `700 ${Math.round(g.top.h * s * 0.42)}px ${DISPLAY}`;
+      ctx.fillText(t.name, cx, cy); ctx.textBaseline = 'alphabetic';
+    }
+    // legend
+    const gs = groups();
+    ctx.font = `400 19px ${SANS}`; ctx.textAlign = 'left';
+    const items = gs.map(g => ({ g, w: 22 + ctx.measureText(groupLabel(g)).width + 28 }));
+    let lx = W / 2 - items.reduce((a, b) => a + b.w, 0) / 2;
+    const ly = y + ph + 40;
+    for (const it of items) {
+      ctx.beginPath(); ctx.arc(lx + 8, ly - 6, 8, 0, Math.PI * 2); ctx.fillStyle = groupColor(it.g); ctx.fill();
+      ctx.fillStyle = C.soft; ctx.fillText(groupLabel(it.g), lx + 22, ly); lx += it.w;
+    }
+    y += planH;
+  }
+
+  // table cards
+  for (const row of gridRows) {
+    const rh = Math.max(...row.map(cardH));
+    row.forEach((t, c) => {
+      const x = P + c * (cw + gap), list = seatedRows(t), kids = list.filter(r => r.g.child).length;
+      rrect(ctx, x, y, cw, rh, 16); ctx.fillStyle = C.paper; ctx.fill(); ctx.strokeStyle = C.line; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = `600 30px ${SERIF}`;
+      ctx.fillText(fitText(ctx, tLabel(t), cw - 150), x + 24, y + 50);
+      ctx.textAlign = 'right'; ctx.fillStyle = C.soft; ctx.font = `400 18px ${SANS}`;
+      ctx.fillText(`${list.length - kids} 位${kids ? ` + 兒童椅 ${kids}` : ''}`, x + cw - 22, y + 48);
+      if (t.note) { ctx.textAlign = 'left'; ctx.fillStyle = C.faint; ctx.font = `400 17px ${SANS}`; ctx.fillText(fitText(ctx, t.note, cw - 48), x + 24, y + 78); }
+      ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 24, y + headH - 8); ctx.lineTo(x + cw - 24, y + headH - 8); ctx.stroke();
+      let ry = y + headH + 22;
+      if (!list.length) { ctx.textAlign = 'left'; ctx.fillStyle = C.faint; ctx.font = `400 19px ${SANS}`; ctx.fillText('尚未安排', x + 24, ry); }
+      for (const { g, i } of list) {
+        let nx = x + 24;
+        if (opts.nums) { ctx.textAlign = 'right'; ctx.fillStyle = C.faint; ctx.font = `400 17px ${SANS}`; ctx.fillText(String(i + 1), x + 46, ry); nx = x + 58; }
+        ctx.beginPath(); ctx.arc(nx + 6, ry - 7, 6.5, 0, Math.PI * 2); ctx.fillStyle = groupColor(g.group); ctx.fill();
+        ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = `500 21px ${SANS}`;
+        const room = x + cw - 22 - (nx + 20);
+        const name = fitText(ctx, g.name, room);
+        ctx.fillText(name, nx + 20, ry);
+        let after = nx + 20 + ctx.measureText(name).width + 10;
+        const extra = [g.child ? '兒童椅' : '', noteText(g)].filter(Boolean).join(' · ');
+        if (extra && x + cw - 22 - after > 30) { ctx.fillStyle = g.child ? C.deep : C.soft; ctx.font = `400 16px ${SANS}`; ctx.fillText(fitText(ctx, extra, x + cw - 22 - after), after, ry); }
+        ry += rowH;
+      }
+    });
+    y += rh + gap;
+  }
+
+  // not yet seated
+  if (leftLines.length) {
+    y += 10;
+    ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = `600 28px ${SERIF}`; ctx.fillText(`尚未安排座位（${left.length} 位）`, P, y + 36);
+    ctx.fillStyle = C.soft; ctx.font = `400 21px ${SANS}`;
+    leftLines.forEach((l, i) => ctx.fillText(l, P, y + 86 + i * 34));
+    y += leftH;
+  }
+
+  // footer
+  const d = new Date();
+  ctx.textAlign = 'center'; ctx.fillStyle = C.faint; ctx.font = `400 17px ${SANS}`;
+  ctx.fillText(`Colbert & Crystal Wedding · 座位表更新於 ${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`, W / 2, H - P + 20);
+  return cv;
 }
 
 function importState(text) {
@@ -1081,6 +1289,9 @@ const actions = {
   },
   dropLocal() { sync.localCopy = null; render(); },
   shareLocal() { sync.empty = false; sync.shared = true; state.sample = false; state.fromShared = true; save(); render(); toast('已設為共用版'); },
+  openShare() { share.open = true; share.dataUrl = ''; share.blob = null; renderShare(); makeShareImage(); },
+  closeShare(el, e) { if (el.classList.contains('modal-back') && e.target !== el) return; share.open = false; renderShare(); },
+  saveShare() { if (share.blob) saveFile(`婚宴座位表-${new Date().toISOString().slice(0, 10)}.png`, share.blob); },
   loadSeed() { seedOffer = false; commit(() => { state = JSON.parse(JSON.stringify(SEED)); ui.sel.clear(); ui.selected = null; }); toast(`已載入 ${state.guests.length} 位賓客`); },
   dismissSeed() { seedOffer = false; render(); },
   keepSample() { state.sample = false; save(); render(); },
@@ -1172,6 +1383,7 @@ document.addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   const typing = e.target.closest('input, textarea, select');
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !typing) { e.preventDefault(); undo(); return; }
+  if (e.key === 'Escape' && share.open) { share.open = false; renderShare(); return; }
   if (e.key === 'Escape') { if (ui.modal) { ui.modal = null; render(); } else if (ui.selected) { ui.selected = null; render(); } else if (ui.sel.size) { ui.sel.clear(); refreshPools(); } return; }
   if ((e.key === 'Delete' || e.key === 'Backspace') && !typing && ui.step === 'layout' && ui.selected) { e.preventDefault(); deleteSelected(); return; }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.chip')) { e.preventDefault(); actions.selToggle(e.target); }
@@ -1200,6 +1412,19 @@ document.addEventListener('input', e => {
 
 document.addEventListener('change', e => {
   const t = e.target;
+  if (t.matches('[data-child]')) {
+    const g = gById()[t.dataset.id]; if (!g) return;
+    if (!canWrite()) { t.checked = !!g.child; return; }
+    pushHistory();
+    if (t.checked) g.child = true; else delete g.child;
+    save(); $('#hdr').innerHTML = headerHTML();
+    toast(t.checked ? `${g.name} 改成兒童椅，不算用餐人數` : `${g.name} 改回一般座位`);
+    return;
+  }
+  if (t.id === 'shPlan' || t.id === 'shNums' || t.id === 'shLeft') {
+    share.opts[{ shPlan: 'plan', shNums: 'nums', shLeft: 'left' }[t.id]] = t.checked;
+    makeShareImage(); return;
+  }
   if (t.dataset.gf) {
     const g = gById()[t.dataset.id]; if (!g) return;
     const v = t.value.trim();
