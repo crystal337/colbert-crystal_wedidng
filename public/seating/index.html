@@ -1092,7 +1092,7 @@ async function saveFile(name, blob) {
 }
 
 /* ================= share image ================= */
-const share = { open: false, busy: false, dataUrl: '', blob: null, opts: { cards: false, nums: true, left: false } };
+const share = { open: false, busy: false, dataUrl: '', blob: null, opts: { cards: true, nums: true, left: false } };
 
 /* Fit the floor plan to the image width, cropping empty floor, and enlarge every table
    as far as the gaps to its neighbours (and to the stage, entrance…) allow. */
@@ -1211,13 +1211,13 @@ async function drawShareImage(opts) {
     ]), new Promise(r => setTimeout(r, 5000))]);
   } catch {}
 
-  const W = 1600, P = 70, inner = W - P * 2, gap = 24, cols = 4, cw = (inner - gap * (cols - 1)) / cols, rowH = 38, headH = 100;
+  const W = 1600, P = 50, inner = W - P * 2, gap = 26, cols = 3, cw = (inner - gap * (cols - 1)) / cols, rowH = 54, headH = 120;
   const seatedRows = t => o[t.id].map((gid, i) => gid && { g: G[gid], i }).filter(Boolean);
   const cardH = t => headH + Math.max(1, seatedRows(t).length) * rowH + 24;
   const gridRows = [];
   for (let i = 0; i < tables.length; i += cols) gridRows.push(tables.slice(i, i + cols));
   const gridH = opts.cards ? gridRows.reduce((h, r) => h + Math.max(...r.map(cardH)) + gap, 0) + 20 : 0;
-  const PP = 36, plan = planLayout(inner - PP * 2), planH = plan.h + PP * 2 + 80;
+  const PP = 24, plan = planLayout(inner - PP * 2), planH = plan.h + PP * 2 + 80;
   const left = unseated();
   const m = document.createElement('canvas').getContext('2d');
   m.font = `400 21px ${SANS}`;
@@ -1231,7 +1231,7 @@ async function drawShareImage(opts) {
   const headerH = 250, footH = 90;
   const H = Math.ceil(P + headerH + planH + gridH + leftH + footH);
 
-  const k = 1.5, cv = document.createElement('canvas');
+  const k = 2, cv = document.createElement('canvas');
   cv.width = Math.round(W * k); cv.height = Math.round(H * k);
   const ctx = cv.getContext('2d');
   ctx.scale(k, k);
@@ -1317,25 +1317,26 @@ async function drawShareImage(opts) {
     row.forEach((t, c) => {
       const x = P + c * (cw + gap), list = seatedRows(t), kids = list.filter(r => r.g.child).length;
       rrect(ctx, x, y, cw, rh, 16); ctx.fillStyle = C.paper; ctx.fill(); ctx.strokeStyle = C.line; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = `600 30px ${SERIF}`;
-      ctx.fillText(fitText(ctx, tLabel(t), cw - 150), x + 24, y + 50);
-      ctx.textAlign = 'right'; ctx.fillStyle = C.soft; ctx.font = `400 18px ${SANS}`;
-      ctx.fillText(`${list.length - kids} 位${kids ? ` + 兒童椅 ${kids}` : ''}`, x + cw - 22, y + 48);
-      if (t.note) { ctx.textAlign = 'left'; ctx.fillStyle = C.faint; ctx.font = `400 17px ${SANS}`; ctx.fillText(fitText(ctx, t.note, cw - 48), x + 24, y + 78); }
-      ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 24, y + headH - 8); ctx.lineTo(x + cw - 24, y + headH - 8); ctx.stroke();
-      let ry = y + headH + 22;
-      if (!list.length) { ctx.textAlign = 'left'; ctx.fillStyle = C.faint; ctx.font = `400 19px ${SANS}`; ctx.fillText('尚未安排', x + 24, ry); }
+      ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = `600 42px ${SERIF}`;
+      ctx.fillText(fitText(ctx, tLabel(t), cw - 220), x + 28, y + 60);
+      ctx.textAlign = 'right'; ctx.fillStyle = C.soft; ctx.font = `400 24px ${SANS}`;
+      ctx.fillText(`${list.length - kids} 位${kids ? ` + 兒童椅 ${kids}` : ''}`, x + cw - 26, y + 58);
+      const tnote = (t.note || '').replace(/\s*·?\s*原\s*\S+\s*桌\s*$/, '');   // the old sheet letter is for us, not for guests
+      if (tnote) { ctx.textAlign = 'left'; ctx.fillStyle = C.faint; ctx.font = `400 22px ${SANS}`; ctx.fillText(fitText(ctx, tnote, cw - 56), x + 28, y + 96); }
+      ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 28, y + headH - 6); ctx.lineTo(x + cw - 28, y + headH - 6); ctx.stroke();
+      let ry = y + headH + 40;
+      if (!list.length) { ctx.textAlign = 'left'; ctx.fillStyle = C.faint; ctx.font = `400 28px ${SANS}`; ctx.fillText('尚未安排', x + 28, ry); }
       for (const { g, i } of list) {
-        let nx = x + 24;
-        if (opts.nums) { ctx.textAlign = 'right'; ctx.fillStyle = C.faint; ctx.font = `400 17px ${SANS}`; ctx.fillText(String(i + 1), x + 46, ry); nx = x + 58; }
-        ctx.beginPath(); ctx.arc(nx + 6, ry - 7, 6.5, 0, Math.PI * 2); ctx.fillStyle = groupColor(g.group); ctx.fill();
-        ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = `500 21px ${SANS}`;
-        const room = x + cw - 22 - (nx + 20);
+        let nx = x + 28;
+        if (opts.nums) { ctx.textAlign = 'right'; ctx.fillStyle = C.faint; ctx.font = `400 24px ${SANS}`; ctx.fillText(String(i + 1), x + 60, ry); nx = x + 74; }
+        ctx.beginPath(); ctx.arc(nx + 8, ry - 10, 9, 0, Math.PI * 2); ctx.fillStyle = groupColor(g.group); ctx.fill();
+        ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = `500 32px ${SANS}`;
+        const room = x + cw - 26 - (nx + 26);
         const name = fitText(ctx, g.name, room);
-        ctx.fillText(name, nx + 20, ry);
-        let after = nx + 20 + ctx.measureText(name).width + 10;
-        const extra = [g.child ? '兒童椅' : '', noteText(g)].filter(Boolean).join(' · ');
-        if (extra && x + cw - 22 - after > 30) { ctx.fillStyle = g.child ? C.deep : C.soft; ctx.font = `400 16px ${SANS}`; ctx.fillText(fitText(ctx, extra, x + cw - 22 - after), after, ry); }
+        ctx.fillText(name, nx + 26, ry);
+        let after = nx + 26 + ctx.measureText(name).width + 12;
+        const extra = [g.child ? '兒童椅' : '', /待確認/.test(noteText(g)) ? '' : noteText(g)].filter(Boolean).join(' · ');   // internal follow-ups stay off the shared image
+        if (extra && x + cw - 26 - after > 40) { ctx.fillStyle = g.child ? C.deep : C.soft; ctx.font = `400 22px ${SANS}`; ctx.fillText(fitText(ctx, extra, x + cw - 26 - after), after, ry); }
         ry += rowH;
       }
     });
