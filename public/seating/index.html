@@ -62,6 +62,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .stats { display: flex; gap: 14px; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
 .stats b { color: var(--ink); font-weight: 600; }
 .saved { font-size: 12px; color: var(--ink-faint); }
+.saved.live { color: var(--sage); }
+.saved.live::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--sage); margin-right: 6px; vertical-align: 1px; }
 
 .banner { margin-top: 14px; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--accent-deep); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px; }
 .banner span { flex: 1 1 260px; }
@@ -328,14 +330,22 @@ function load() {
 }
 function validState(d) { return d && d.v === 1 && Array.isArray(d.guests) && Array.isArray(d.tables) && Array.isArray(d.decor) && d.seat && d.room; }
 let savedAt = null;
-function save() {
+function saveLocal() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); savedAt = new Date(); } catch { savedAt = null; }
-  const el = $('#savedNote'); if (el) el.textContent = savedNote();
+  renderSyncStatus();
 }
+function save() { saveLocal(); queueSync(); }
 function savedNote() {
+  if (sync.shared) {
+    if (sync.error === 'lost') return '和共用版的連線中斷了，請重新整理';
+    if (sync.readOnly) return '共用版 · 你只能檢視';
+    return sync.pending.size || sync.inflight.size ? '同步中…' : '已共用 · 大家看到同一份';
+  }
+  if (sync.db && !sync.ready) return '正在連線共用版…';
   if (!savedAt) return '尚未儲存，記得到「座位總覽」複製備份';
-  return `已自動儲存 ${savedAt.toTimeString().slice(0, 5)}`;
+  return `已存在這台裝置 ${savedAt.toTimeString().slice(0, 5)}`;
 }
+function renderSyncStatus() { const el = $('#savedNote'); if (el) el.textContent = savedNote(); }
 
 // A page can be shipped with a pre-built list (e.g. converted from the couple's Google Sheet).
 const SEED = validState(window.__SEATING_SEED__) ? window.__SEATING_SEED__ : null;
@@ -348,11 +358,145 @@ const ui = { step: 'guests', scale: 0.8, autoFit: true, selected: null, sel: new
 const history = [];
 
 function pushHistory() { history.push(JSON.stringify(state)); if (history.length > 80) history.shift(); }
-function commit(fn) { pushHistory(); fn(); save(); render(); }
+function commit(fn) { if (!canWrite()) return; pushHistory(); fn(); save(); render(); }
+function canWrite() {
+  if (sync.shared && sync.readOnly) { toast('你只有檢視權限，沒辦法修改共用的座位表'); return false; }
+  return true;
+}
 function undo() {
+  if (!canWrite()) return;
   if (!history.length) { toast('沒有可以復原的動作'); return; }
   state = JSON.parse(history.pop());
   save(); render(); toast('已復原上一步');
+}
+
+/* ================= shared version (artifact db) =================
+   Each guest, table and floor marker is its own document, so two people
+   editing different things at once never overwrite each other. */
+const COLLS = ['guests', 'tables', 'decor', 'meta'];
+const DEL = 'DELETE';
+const sync = { db: null, shared: false, ready: false, readOnly: false, empty: false, error: '', got: {}, remote: { guests: new Map(), tables: new Map(), decor: new Map(), meta: new Map() }, known: new Map(), pending: new Map(), inflight: new Map(), retried: new Set(), timer: 0, deferred: false, localCopy: null, moving: false };
+
+const stable = v => JSON.stringify(v, (k, x) => x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map(key => [key, x[key]])) : x);
+
+function docsOf(st) {
+  const m = new Map();
+  st.guests.forEach((g, i) => { const a = st.seat[g.id]; m.set('guests/' + g.id, { name: g.name, group: g.group || '', note: g.note || '', order: g.order ?? i, t: a ? a.t : null, s: a ? a.s : null }); });
+  st.tables.forEach(t => m.set('tables/' + t.id, { name: t.name, note: t.note || '', shape: t.shape, seats: t.seats, x: t.x, y: t.y }));
+  st.decor.forEach(d => m.set('decor/' + d.id, { kind: d.kind, label: d.label, x: d.x, y: d.y, w: d.w, h: d.h }));
+  m.set('meta/plan', { room: { w: st.room.w, h: st.room.h } });
+  return m;
+}
+const sameDocs = (a, b) => { const x = docsOf(a), y = docsOf(b); if (x.size !== y.size) return false; for (const [p, v] of x) if (stable(v) !== stable(y.get(p))) return false; return true; };
+
+function queueSync() { if (!sync.shared || sync.readOnly) return; clearTimeout(sync.timer); sync.timer = setTimeout(flushSync, 250); }
+function flushSync() {
+  if (!sync.shared || sync.readOnly) return;
+  occ();
+  const docs = docsOf(state);
+  for (const [p, body] of docs) { const j = stable(body); if (sync.known.get(p) !== j) { sync.known.set(p, j); sync.pending.set(p, body); } }
+  for (const p of [...sync.known.keys()]) if (!docs.has(p)) { sync.known.delete(p); sync.pending.set(p, DEL); }
+  pump(); renderSyncStatus();
+}
+function pump() {
+  for (const [p, body] of [...sync.pending]) {
+    if (sync.inflight.size >= 6) break;
+    if (sync.inflight.has(p)) continue;
+    sync.pending.delete(p); sync.inflight.set(p, body);
+    const ref = sync.db.doc(p);
+    (body === DEL ? ref.delete() : ref.set(body))
+      .then(() => sync.retried.delete(p), e => writeFailed(p, body, e))
+      .finally(() => { sync.inflight.delete(p); pump(); renderSyncStatus(); if (!sync.pending.size && !sync.inflight.size) applyRemote(); });
+  }
+}
+function writeFailed(p, body, e) {
+  const code = e?.code;
+  if (code === 'invalid_argument' || code === 'not_granted') {
+    sync.readOnly = true; sync.pending.clear();
+    toast('你只有檢視權限，修改沒有存到共用版');
+  } else if (code === 'unavailable' && !sync.retried.has(p)) {
+    sync.retried.add(p);
+    setTimeout(() => { if (!sync.pending.has(p) && !sync.inflight.has(p)) { sync.pending.set(p, body); pump(); } }, 600 + Math.random() * 900);
+  } else if (code === 'quota_exceeded') toast('共用版的空間滿了，刪掉一些不用的賓客或桌子再試');
+  else { sync.error = 'write'; toast('有一筆修改沒有存到共用版，請重新整理後再試一次'); }
+}
+
+function subscribe() {
+  for (const c of COLLS) {
+    sync.db.collection(c).onSnapshot(snap => {
+      const m = new Map();
+      snap.docs.forEach(d => { if (d.exists) m.set(d.id, d.data()); });
+      sync.remote[c] = m;
+      if (!snap.metadata.fromCache) sync.got[c] = true;
+      for (const p of [...sync.known.keys()]) if (p.startsWith(c + '/') && !sync.pending.has(p) && !sync.inflight.has(p) && !m.has(p.slice(c.length + 1))) sync.known.delete(p);
+      m.forEach((d, id) => { const p = c + '/' + id; if (!sync.pending.has(p) && !sync.inflight.has(p)) sync.known.set(p, stable(d)); });
+      onRemote();
+    }, () => { sync.error = 'lost'; renderSyncStatus(); });
+  }
+}
+
+function buildFromRemote() {
+  const view = c => {
+    const m = new Map(sync.remote[c]);
+    for (const src of [sync.inflight, sync.pending]) for (const [p, b] of src) {
+      const i = p.indexOf('/'); if (p.slice(0, i) !== c) continue;
+      const id = p.slice(i + 1); b === DEL ? m.delete(id) : m.set(id, b);
+    }
+    return m;
+  };
+  const str = v => String(v ?? '').slice(0, 200), num = (v, d) => (Number.isFinite(+v) ? +v : d);
+  const s = { v: 1, sample: false, fromShared: true, seed: state.seed, snap: state.snap, room: { w: 1400, h: 900 }, guests: [], tables: [], decor: [], seat: {} };
+  const plan = view('meta').get('plan');
+  if (plan?.room) s.room = { w: clamp(num(plan.room.w, 1400), 400, 5000), h: clamp(num(plan.room.h, 900), 300, 5000) };
+  for (const [id, d] of view('guests')) {
+    s.guests.push({ id, name: str(d.name) || '?', group: str(d.group), note: str(d.note), order: num(d.order, 0) });
+    if (d.t != null && d.s != null) s.seat[id] = { t: String(d.t), s: num(d.s, 0) };
+  }
+  s.guests.sort((a, b) => a.order - b.order || (a.id < b.id ? -1 : 1));
+  for (const [id, d] of view('tables')) s.tables.push({ id, name: str(d.name), note: str(d.note), shape: SHAPES[d.shape] ? d.shape : 'round', seats: clamp(Math.round(num(d.seats, 10)), 2, 24), x: num(d.x, 700), y: num(d.y, 450) });
+  s.tables.sort((a, b) => String(a.name).localeCompare(String(b.name), 'zh-Hant', { numeric: true }));
+  for (const [id, d] of view('decor')) s.decor.push({ id, kind: DECOR_KINDS[d.kind] ? d.kind : 'custom', label: str(d.label), x: num(d.x, 700), y: num(d.y, 450), w: clamp(num(d.w, 140), 20, 5000), h: clamp(num(d.h, 60), 20, 5000) });
+  return s;
+}
+
+function isBusy() {
+  if (drag?.active || sync.moving) return true;
+  const a = document.activeElement;
+  return !!(a && a.matches('input:not([type=checkbox]):not([type=file]), textarea, select') && a.closest('#main, #modalRoot'));
+}
+function applyRemote() {
+  if (!sync.shared) return;
+  if (isBusy()) { sync.deferred = true; return; }
+  sync.deferred = false;
+  const next = buildFromRemote();
+  if (sameDocs(next, state)) return;
+  state = next; saveLocal(); render();
+}
+function flushDeferred() { if (sync.deferred) setTimeout(() => { if (!isBusy()) applyRemote(); }, 0); }
+document.addEventListener('focusout', flushDeferred);
+
+function onRemote() {
+  if (sync.ready) { applyRemote(); return; }
+  if (!COLLS.every(c => sync.got[c])) return;
+  sync.ready = true;
+  if (COLLS.every(c => !sync.remote[c].size)) { sync.empty = !sync.readOnly; render(); return; }
+  const remote = buildFromRemote();
+  if (!state.fromShared && !state.sample && !sameDocs(state, remote)) sync.localCopy = state;
+  state = remote; sync.shared = true; seedOffer = false;
+  ui.selected = null; ui.sel.clear();
+  saveLocal(); render();
+  if (ui.autoFit && (ui.step === 'layout' || ui.step === 'assign')) fit();
+}
+
+async function connectShared() {
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') return;
+  let db = null;
+  try { db = await c.use('db'); } catch { db = null; }
+  if (!db) return;
+  sync.db = db; renderSyncStatus();
+  try { const user = await c.use('user'); if (user && (await user.can('data.write')) === false) sync.readOnly = true; } catch {}
+  subscribe();
 }
 
 /* ================= helpers ================= */
@@ -571,11 +715,15 @@ function headerHTML() {
   <div class="top-right">
     <div class="stats"><span>賓客 <b>${total}</b></span><span>已入座 <b>${seated}</b></span><span>未入座 <b>${total - seated}</b></span><span>${state.tables.length} 桌 · <b>${cap}</b> 個座位</span></div>
     <button class="btn small" data-act="undo" ${history.length ? '' : 'disabled'} title="Ctrl/⌘ + Z">↶ 復原</button>
-    <span class="saved" id="savedNote">${savedNote()}</span>
+    <span class="saved ${sync.shared ? 'live' : ''}" id="savedNote">${savedNote()}</span>
   </div>`;
 }
 
 function bannerHTML() {
+  if (sync.localCopy) return `<div class="banner no-print"><span>這台裝置上有一份在共用版之前做的修改（${Object.keys(sync.localCopy.seat).length} 位已入座），和共用版不一樣。現在畫面上顯示的是共用版。</span>
+  ${sync.readOnly ? '' : '<button class="btn small" data-act="useLocal" data-confirm="會蓋掉大家看到的版本，再按一次">用這台裝置的版本取代共用版</button>'}<button class="btn small" data-act="dropLocal">使用共用版</button></div>`;
+  if (sync.empty) return `<div class="banner no-print"><span>共用版目前是空的。把現在畫面上的名單和桌位設為共用版後，所有打開這個連結的人都會看到同一份。</span>
+  <button class="btn small" data-act="shareLocal">設為共用版</button></div>`;
   if (seedOffer) return `<div class="banner no-print"><span>有一份新的 Google Sheet 名單（${SEED.guests.length} 位）。載入會取代目前的名單和座位，舊的可以用「復原」找回。</span>
   <button class="btn small" data-act="loadSeed" data-confirm="會取代目前資料，再按一次">載入新名單</button><button class="btn small" data-act="dismissSeed">先不要</button></div>`;
   if (!state.sample) return '';
@@ -848,9 +996,9 @@ function overviewHTML() {
     <div class="export no-print">
       <div class="panel"><h2>座位表 CSV</h2><p class="hint">可以貼到 Excel / Google Sheet，或給場地與婚顧。</p><textarea id="csvOut" readonly>${esc(csvText())}</textarea>
         <div class="row" style="margin-top:8px"><button class="btn small" data-act="copy" data-src="csvOut">複製</button>${IFRAMED ? '' : '<button class="btn small" data-act="download" data-kind="csv">下載 .csv</button>'}</div></div>
-      <div class="panel"><h2>備份</h2><p class="hint">資料只存在這台裝置的瀏覽器。換電腦或清除瀏覽紀錄前，先複製備份存起來；要還原時貼回下面再按「匯入備份」。</p><textarea id="jsonOut" readonly>${esc(JSON.stringify(state))}</textarea>
+      <div class="panel"><h2>備份</h2><p class="hint">${sync.shared ? '共用版的資料存在雲端，大家看到同一份。想留一份某個時間點的版本，可以複製下面的備份存起來。' : '資料只存在這台裝置的瀏覽器。換電腦或清除瀏覽紀錄前，先複製備份存起來；要還原時貼回下面再按「匯入備份」。'}</p><textarea id="jsonOut" readonly>${esc(JSON.stringify(state))}</textarea>
         <div class="row" style="margin-top:8px"><button class="btn small" data-act="copy" data-src="jsonOut">複製備份</button>${IFRAMED ? '' : '<button class="btn small" data-act="download" data-kind="json">下載備份檔</button>'}</div></div>
-      <div class="panel"><h2>匯入備份</h2><p class="hint">會取代目前所有名單、桌位和座位。</p><textarea id="jsonIn" placeholder="把備份文字貼在這裡"></textarea>
+      <div class="panel"><h2>匯入備份</h2><p class="hint">會取代目前所有名單、桌位和座位${sync.shared ? '，共用版也會一起改變' : ''}。</p><textarea id="jsonIn" placeholder="把備份文字貼在這裡"></textarea>
         <div class="row" style="margin-top:8px"><button class="btn small" data-act="importJSON" data-confirm="會取代目前資料，再按一次">匯入備份</button><label class="btn small file">讀取備份檔<input type="file" id="fileBackup" accept=".json,application/json"></label></div></div>
     </div>
   </section>`;
@@ -892,7 +1040,8 @@ function addGuests(list, replace) {
     // pasting a real list always clears the sample guests
     if (replace || state.sample) { state.guests = []; state.seat = {}; }
     state.sample = false;
-    state.guests.push(...list.map(g => ({ id: uid(), ...g })));
+    const base = state.guests.reduce((m, g, i) => Math.max(m, g.order ?? i), -1) + 1;
+    state.guests.push(...list.map((g, i) => ({ id: uid(), ...g, order: base + i })));
   });
   const box = $('#pasteBox'); if (box) box.value = '';
   toast(`已加入 ${list.length} 位賓客`);
@@ -925,6 +1074,13 @@ function importState(text) {
 const actions = {
   step(el) { ui.step = el.dataset.step; ui.selected = null; render(); if ((ui.step === 'layout' || ui.step === 'assign') && ui.autoFit) fit(); window.scrollTo({ top: 0 }); },
   undo,
+  useLocal() {
+    const local = sync.localCopy; sync.localCopy = null;
+    commit(() => { state = { ...local, fromShared: true, sample: false }; });
+    toast('已用這台裝置的版本取代共用版');
+  },
+  dropLocal() { sync.localCopy = null; render(); },
+  shareLocal() { sync.empty = false; sync.shared = true; state.sample = false; state.fromShared = true; save(); render(); toast('已設為共用版'); },
   loadSeed() { seedOffer = false; commit(() => { state = JSON.parse(JSON.stringify(SEED)); ui.sel.clear(); ui.selected = null; }); toast(`已載入 ${state.guests.length} 位賓客`); },
   dismissSeed() { seedOffer = false; render(); },
   keepSample() { state.sample = false; save(); render(); },
@@ -1028,6 +1184,7 @@ document.addEventListener('input', e => {
   else if (t.id === 'pSearch') { ui.pSearch = t.value; $('#poolList').innerHTML = poolListHTML(ui.pSearch, ui.pFilter); }
   else if (t.id === 'mSearch') { ui.mSearch = t.value; $('#mPoolList').innerHTML = poolListHTML(ui.mSearch, ''); }
   else if (t.dataset.prop && ui.selected) {
+    if (sync.shared && sync.readOnly) return;
     const item = ui.selected.kind === 'table' ? tById(ui.selected.id) : state.decor.find(d => d.id === ui.selected.id);
     if (!item) return;
     if (!t.dataset.pushed) { pushHistory(); t.dataset.pushed = '1'; }
@@ -1047,6 +1204,7 @@ document.addEventListener('change', e => {
     const g = gById()[t.dataset.id]; if (!g) return;
     const v = t.value.trim();
     if (t.dataset.gf === 'name' && !v) { t.value = g.name; toast('姓名不能空白'); return; }
+    if (!canWrite()) { t.value = g[t.dataset.gf]; return; }
     pushHistory(); g[t.dataset.gf] = v; save();
     $('#hdr').innerHTML = headerHTML();
     if (t.dataset.gf === 'group') {
@@ -1056,6 +1214,7 @@ document.addEventListener('change', e => {
     }
   } else if (t.id === 'mName' || t.id === 'mNote') {
     const tb = tById(ui.modal); if (!tb) return;
+    if (!canWrite()) { t.value = t.id === 'mName' ? tb.name : tb.note; return; }
     pushHistory(); tb[t.id === 'mName' ? 'name' : 'note'] = t.value.trim(); save();
     $('#main').innerHTML = mainHTML(); $('#hdr').innerHTML = headerHTML();
     const lbl = $('.modal'); if (lbl) lbl.setAttribute('aria-label', tLabel(tb));
@@ -1096,6 +1255,8 @@ function startMove(e, el) {
   const item = kind === 'table' ? tById(id) : state.decor.find(d => d.id === id);
   if (!item) return;
   e.preventDefault();
+  if (sync.shared && sync.readOnly) return;
+  sync.moving = true;
   const changed = ui.selected?.id !== id;
   ui.selected = { kind, id };
   document.querySelectorAll('#floor .sel').forEach(n => n.classList.remove('sel'));
@@ -1115,7 +1276,9 @@ function startMove(e, el) {
   };
   const up = () => {
     window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+    sync.moving = false;
     if (st.moved) { save(); $('#hdr').innerHTML = headerHTML(); }
+    flushDeferred();
   };
   window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
 }
@@ -1123,6 +1286,7 @@ function startMove(e, el) {
 /* ---------- dragging: guests ---------- */
 let drag = null;
 function startGuestDrag(e, el) {
+  if (sync.shared && sync.readOnly) return;
   const id = el.dataset.id;
   let ids = [id];
   if (el.dataset.drag === 'pool' && ui.sel.has(id)) {
@@ -1188,7 +1352,7 @@ function cleanupDrag() {
   drag.srcEls?.forEach(n => n.classList.remove('dragging-src'));
   document.body.classList.remove('is-dragging');
 }
-function onDragCancel() { if (!drag) return; cleanupDrag(); drag = null; }
+function onDragCancel() { if (!drag) return; cleanupDrag(); drag = null; flushDeferred(); }
 function onDragEnd(ev) {
   if (!drag) return;
   const d = drag;
@@ -1196,7 +1360,7 @@ function onDragEnd(ev) {
   if (!d.active) return;
   ui.justDragged = true; setTimeout(() => { ui.justDragged = false; }, 60);
   const hit = d.target || document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-drop]');
-  if (!hit) return;
+  if (!hit) { flushDeferred(); return; }
   const type = hit.dataset.drop;
   const target = type === 'pool' ? { type } : { type, table: hit.dataset.table, seat: hit.dataset.seat != null ? +hit.dataset.seat : null };
   commit(() => {
@@ -1210,6 +1374,7 @@ document.addEventListener('contextmenu', e => { if (e.target.closest('[data-drag
 /* ================= boot ================= */
 render();
 if (seededNow) { save(); toast(`已載入名單：${state.guests.length} 位賓客、${state.tables.length} 桌`); }
+connectShared();
 })();
 </script>
 </body>
