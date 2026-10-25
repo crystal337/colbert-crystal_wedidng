@@ -258,6 +258,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const isNumName = n => /^\d+$/.test(String(n).trim());
+const isLetterName = n => /^[A-Za-z]$/.test(String(n).trim());
 
 function emptyState() {
   return { v: 1, sample: false, snap: true, room: { w: 1400, h: 900 }, guests: [], tables: [], decor: [
@@ -336,7 +337,13 @@ function savedNote() {
   return `已自動儲存 ${savedAt.toTimeString().slice(0, 5)}`;
 }
 
-let state = load() || sampleState();
+// A page can be shipped with a pre-built list (e.g. converted from the couple's Google Sheet).
+const SEED = validState(window.__SEATING_SEED__) ? window.__SEATING_SEED__ : null;
+let state = load();
+let seedOffer = false, seededNow = false;
+if (SEED && (!state || state.sample || !state.seed)) { state = JSON.parse(JSON.stringify(SEED)); seededNow = true; }
+else if (SEED && state.seed !== SEED.seed) seedOffer = true;
+if (!state) state = sampleState();
 const ui = { step: 'guests', scale: 0.8, autoFit: true, selected: null, sel: new Set(), gSearch: '', gFilter: '', pSearch: '', pFilter: '', mSearch: '', modal: null, justDragged: false };
 const history = [];
 
@@ -383,7 +390,7 @@ function groupColor(group) {
 }
 const groupLabel = g => g || '未分組';
 
-function tLabel(t) { return isNumName(t.name) ? `第 ${t.name} 桌` : (t.name || '未命名'); }
+function tLabel(t) { return isNumName(t.name) ? `第 ${t.name} 桌` : isLetterName(t.name) ? `${t.name.toUpperCase()} 桌` : (t.name || '未命名'); }
 
 /* Seat occupancy per table; drops dangling assignments. */
 function occ() {
@@ -408,8 +415,11 @@ function unseated() {
 
 function shortName(name) {
   const m = name.match(/^(.*)\+(\d+)$/);
-  if (m) return `${shortName(m[1]).slice(0, 2)}+${m[2]}`;
-  if (/[㐀-鿿]/.test(name)) return name.length <= 3 ? name : name.slice(-2);
+  const cjk = /[㐀-鿿]/.test(name);
+  if (m) return `${shortName(m[1]).slice(0, cjk ? 2 : 4)}+${m[2]}`;
+  const d = name.match(/^(.*?)(\d+)$/);
+  if (cjk && d && name.length > 3) return d[1].slice(0, 2) + d[2];
+  if (cjk) return name.length <= 3 ? name : name.slice(-2);
   const w = name.split(/\s+/)[0];
   return w.length > 6 ? w.slice(0, 5) + '…' : w;
 }
@@ -517,6 +527,8 @@ function autoFill() {
 }
 
 function nextTableName() {
+  const letters = state.tables.map(t => t.name).filter(isLetterName).map(n => n.toUpperCase().charCodeAt(0));
+  if (letters.length && letters.length === state.tables.length && Math.max(...letters) < 90) return String.fromCharCode(Math.max(...letters) + 1);
   const nums = state.tables.map(t => t.name).filter(isNumName).map(Number);
   return String(nums.length ? Math.max(...nums) + 1 : 1);
 }
@@ -564,6 +576,8 @@ function headerHTML() {
 }
 
 function bannerHTML() {
+  if (seedOffer) return `<div class="banner no-print"><span>有一份新的 Google Sheet 名單（${SEED.guests.length} 位）。載入會取代目前的名單和座位，舊的可以用「復原」找回。</span>
+  <button class="btn small" data-act="loadSeed" data-confirm="會取代目前資料，再按一次">載入新名單</button><button class="btn small" data-act="dismissSeed">先不要</button></div>`;
   if (!state.sample) return '';
   return `<div class="banner no-print"><span>目前是<b>範例名單與桌位</b>，方便你先試試看怎麼用。到「賓客名單」貼上你們的名單並按「取代整份名單」，範例賓客就會被換掉。</span>
   <button class="btn small" data-act="keepSample">我知道了</button><button class="btn small" data-act="blank" data-confirm="確定清空？再按一次">清空，從空白開始</button></div>`;
@@ -731,7 +745,7 @@ function tableHTML(t, row, G, mode, k) {
     else inner = guest ? esc(shortName(guest.name)) : `<span class="no">${i + 1}</span>`;
     return `<div class="seat ${guest ? 'filled' : ''} ${big ? 'big' : ''}" style="${style}" ${drop} ${drag} ${guest ? `title="${i + 1} 號 · ${esc(guest.name)}${guest.group ? ' · ' + esc(guest.group) : ''}"` : ''}>${inner}</div>`;
   }).join('');
-  const word = !isNumName(t.name);
+  const word = !isNumName(t.name) && !isLetterName(t.name);
   const pos = big ? '' : `left:${t.x}px;top:${t.y}px;`;
   return `<div class="tbl ${ui.selected?.id === t.id && mode === 'layout' ? 'sel' : ''}" style="${pos}width:${g.w}px;height:${g.h}px" ${attrs}>
     <div class="tbl-top ${g.top.round ? 'round' : 'rect'}" style="width:${g.top.w}px;height:${g.top.h}px">
@@ -911,6 +925,8 @@ function importState(text) {
 const actions = {
   step(el) { ui.step = el.dataset.step; ui.selected = null; render(); if ((ui.step === 'layout' || ui.step === 'assign') && ui.autoFit) fit(); window.scrollTo({ top: 0 }); },
   undo,
+  loadSeed() { seedOffer = false; commit(() => { state = JSON.parse(JSON.stringify(SEED)); ui.sel.clear(); ui.selected = null; }); toast(`已載入 ${state.guests.length} 位賓客`); },
+  dismissSeed() { seedOffer = false; render(); },
   keepSample() { state.sample = false; save(); render(); },
   blank() { commit(() => { state = emptyState(); ui.sel.clear(); ui.selected = null; }); toast('已清空，從貼上名單開始'); },
   append() { addGuests(parseGuests($('#pasteBox').value), false); },
@@ -1193,6 +1209,7 @@ document.addEventListener('contextmenu', e => { if (e.target.closest('[data-drag
 
 /* ================= boot ================= */
 render();
+if (seededNow) { save(); toast(`已載入名單：${state.guests.length} 位賓客、${state.tables.length} 桌`); }
 })();
 </script>
 </body>
